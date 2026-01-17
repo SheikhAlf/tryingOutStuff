@@ -29,7 +29,7 @@ npm install --save-dev vite
 
 ## Run the Development Server
 
-From the root folder of the repo start Vite with:
+Start Vite with:
 
 ```bash
 npx vite
