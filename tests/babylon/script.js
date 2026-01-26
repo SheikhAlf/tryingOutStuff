@@ -1,13 +1,22 @@
 const canvas = document.querySelector("canvas");
 const engine = new BABYLON.Engine(canvas);
 const scene = new BABYLON.Scene(engine);
+scene.collisionsEnabled = true;
 scene.clearColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+scene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(
+    "/assets/environment.env",
+    scene
+);
 
 const camera = new BABYLON.FreeCamera(
   "camera",
-  new BABYLON.Vector3(0, 0, -10),
+  new BABYLON.Vector3(-320, 1262, 409),
   scene,
 );
+scene.activeCamera = camera;
+camera.attachControl(canvas, true);
+camera.setTarget(BABYLON.Vector3.Zero());
+camera.rotation = new BABYLON.Vector3(1.3135351989207036, 1.5185824993276926, 0);
 
 const light = new BABYLON.PointLight(
   "light",
@@ -15,12 +24,19 @@ const light = new BABYLON.PointLight(
   scene,
 );
 
-const box = BABYLON.Mesh.CreateBox("box", 2, scene);
-box.rotation.x = -0.2;
-box.rotation.y = -0.4;
-const boxMaterial = new BABYLON.StandardMaterial("material", scene);
-boxMaterial.emissiveColor = new BABYLON.Color3(0, 0.58, 0.86);
-box.material = boxMaterial;
+BABYLON.SceneLoader.ImportMeshAsync(
+  "",
+  "/assets/",      
+  "FormulaPrototype.glb",
+  scene
+)
+
+BABYLON.SceneLoader.ImportMeshAsync(
+  "",
+  "/assets/",      
+  "CavTestTrack.glb",
+  scene
+)
 
 function renderLoop() {
   scene.render();
