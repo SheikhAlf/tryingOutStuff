@@ -1,6 +1,7 @@
 const canvas = document.querySelector("canvas");
 const engine = new BABYLON.Engine(canvas);
 const scene = new BABYLON.Scene(engine);
+const nodes = [];
 scene.collisionsEnabled = true;
 scene.clearColor = new BABYLON.Color3(0.8, 0.8, 0.8);
 scene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(
@@ -14,6 +15,7 @@ const camera = new BABYLON.FreeCamera(
   scene,
 );
 scene.activeCamera = camera;
+camera.speed = 10;
 camera.attachControl(canvas, true);
 camera.rotation = new BABYLON.Vector3(1.3135351989207036, 1.5185824993276926, 0);
 
@@ -48,6 +50,12 @@ scene.onPointerObservable.add(pointerInfo => {
 
     if (pick.hit && pick.pickedMesh) {
       placeNode(pick.pickedPoint);
+      nodes.push({
+        x: pick.pickedPoint.x,
+        y: pick.pickedPoint.y,
+        z: pick.pickedPoint.z,
+      });
+      console.log(nodes);
     }
   }
 });
