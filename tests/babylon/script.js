@@ -15,7 +15,6 @@ const camera = new BABYLON.FreeCamera(
 );
 scene.activeCamera = camera;
 camera.attachControl(canvas, true);
-camera.setTarget(BABYLON.Vector3.Zero());
 camera.rotation = new BABYLON.Vector3(1.3135351989207036, 1.5185824993276926, 0);
 
 const light = new BABYLON.PointLight(
@@ -24,19 +23,48 @@ const light = new BABYLON.PointLight(
   scene,
 );
 
-BABYLON.SceneLoader.ImportMeshAsync(
+const car = BABYLON.SceneLoader.ImportMeshAsync(
   "",
   "/assets/",      
   "FormulaPrototype.glb",
   scene
-)
+).then(model => {
+  model.meshes.forEach(m => { m.isPickable ;})}
+);
 
-BABYLON.SceneLoader.ImportMeshAsync(
+const track = BABYLON.SceneLoader.ImportMeshAsync(
   "",
   "/assets/",      
   "CavTestTrack.glb",
   scene
 )
+
+scene.onPointerObservable.add(pointerInfo => {
+  if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERDOWN) {
+    const pick = scene.pick(
+      scene.pointerX,
+      scene.pointerY
+    );
+
+    if (pick.hit && pick.pickedMesh) {
+      placeNode(pick.pickedPoint);
+    }
+  }
+});
+
+function placeNode(position) {
+  const node = BABYLON.MeshBuilder.CreateSphere(
+    "node",
+    { diameter: 4},
+    scene
+  );
+
+  node.position.copyFrom(position);
+
+  const mat = new BABYLON.StandardMaterial("nodeMat", scene);
+  mat.diffuseColor = new BABYLON.Color3(1, 0, 0);
+  node.material = mat;
+}
 
 function renderLoop() {
   scene.render();
