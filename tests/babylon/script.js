@@ -1,7 +1,58 @@
+"use strict";
+
+class TrackNode {
+  constructor(x, y, z, a, next) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    this.a = a;
+    this.next = next;
+  }
+}
+
+class Track {
+  constructor() {
+    this.head = null;
+    this.tail = null;
+    this.line = null;
+  }
+
+  addPoint(x, y, z) {
+    const node = new TrackNode(x, y, z, NaN, null);
+    if (!this.head) {
+      this.head = node;
+      this.tail = node;
+      return;
+    }
+    this.tail.next = node;
+    //tail perultimo, node ultimo
+    BABYLON.MeshBuilder.CreateLines("line",
+      {
+        points: [
+        new BABYLON.Vector3(this.tail.x, this.tail.y, this.tail.z), 
+        new BABYLON.Vector3(this.tail.next.x, this.tail.next.y, this.tail.next.z)
+      ] 
+      }, scene
+    );
+    this.tail = node;
+  }
+
+  toString() {
+    let c = this.head;
+    let s = "";
+    while (c !== undefined) {
+      s += `x: ${c.x}, y: ${c.y}, z: ${c.z}, a: ${c.a} | `;
+      c = c.next;
+    }
+    return s;
+  }
+}
+
+let path = new Track();
+
 const canvas = document.querySelector("canvas");
 const engine = new BABYLON.Engine(canvas);
 const scene = new BABYLON.Scene(engine);
-const nodes = [];
 scene.collisionsEnabled = true;
 scene.clearColor = new BABYLON.Color3(0.8, 0.8, 0.8);
 scene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(
@@ -50,12 +101,11 @@ scene.onPointerObservable.add(pointerInfo => {
 
     if (pick.hit && pick.pickedMesh) {
       placeNode(pick.pickedPoint);
-      nodes.push({
-        x: pick.pickedPoint.x,
-        y: pick.pickedPoint.y,
-        z: pick.pickedPoint.z,
-      });
-      console.log(nodes);
+      path.addPoint(
+        pick.pickedPoint.x,
+        pick.pickedPoint.y,
+        pick.pickedPoint.z
+      );
     }
   }
 });
@@ -63,7 +113,7 @@ scene.onPointerObservable.add(pointerInfo => {
 function placeNode(position) {
   const node = BABYLON.MeshBuilder.CreateSphere(
     "node",
-    { diameter: 4},
+    {diameter: 4},
     scene
   );
 
