@@ -17,24 +17,73 @@ class Track {
     this.line = null;
   }
 
-  addPoint(x, y, z) {
-    const node = new TrackNode(x, y, z, NaN, null);
+  addPoint(x, y, z, a) {
+    const node = new TrackNode(x, y, z, a, null);
     if (!this.head) {
-      this.head = node;
-      this.tail = node;
-      return;
+        this.head = node;
+        this.tail = node;
+        return;
     }
     this.tail.next = node;
-    //tail perultimo, node ultimo
-    BABYLON.MeshBuilder.CreateLines("line",
-      {
-        points: [
-        new BABYLON.Vector3(this.tail.x, this.tail.y, this.tail.z), 
-        new BABYLON.Vector3(this.tail.next.x, this.tail.next.y, this.tail.next.z)
-      ] 
-      }, scene
-    );
+    if (this.arrow) {
+      this.arrow.dispose();
+    }
+    if (this.tail !== this.head || this.head !== node) { 
+      this.arrow = this.createArrow(this.tail);
+    }
     this.tail = node;
+  }
+
+
+  createArrow(node) {
+    const shaft = BABYLON.MeshBuilder.CreateCylinder("shaft", {
+        height: 8,
+        diameter: 0.15
+    }, scene);
+
+    const head = BABYLON.MeshBuilder.CreateCylinder("head", {
+        height: 2,
+        diameterTop: 0,
+        diameterBottom: 0.6
+    }, scene);
+
+    head.position.y = 5; 
+
+    const arrow = BABYLON.Mesh.MergeMeshes([shaft, head], true);
+    arrow.position.copyFrom(new BABYLON.Vector3(node.x, node.y, node.z));
+    arrow.rotationQuaternion = BABYLON.Quaternion.Identity();
+
+    const mat = new BABYLON.StandardMaterial("arrowMat", scene);
+    mat.diffuseColor = new BABYLON.Color3(1, 0.3, 0.3);
+    arrow.material = mat;
+
+    if (this.tail && this.tail.gizmo) {
+        this.tail.gizmo.attachedMesh = null;
+        this.tail.gizmo.dispose();
+        this.tail.gizmo = null;
+    }
+
+    const gizmo = new BABYLON.RotationGizmo();
+    gizmo.attachedMesh = arrow;
+    gizmo.updateGizmoRotationToMatchAttachedMesh = true;
+
+    node.arrow = arrow;
+    node.gizmo = gizmo;
+    return {
+        mesh: arrow,
+        gizmo: gizmo,
+        dispose() { 
+            if (this.gizmo) {
+                this.gizmo.attachedMesh = null;
+                this.gizmo.dispose();
+                this.gizmo = null;
+            }
+            if (this.mesh) {
+                this.mesh.dispose();
+                this.mesh = null;
+            }
+        }
+    };
   }
 
   toString() {
@@ -109,6 +158,13 @@ scene.onPointerObservable.add(pointerInfo => {
     }
   }
 });
+
+window.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { // confirm with Enter
+        confirmArrow();
+    }
+});
+
 
 function placeNode(position) {
   const node = BABYLON.MeshBuilder.CreateSphere(
