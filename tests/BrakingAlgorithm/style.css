@@ -1,0 +1,14 @@
+@import "https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css";
+
+#canvas {
+    background-color: #e8ebe1;
+    border: 10px solid #747080;
+}
+
+#container {
+    margin: 20px;
+}
+
+#reset {
+    margin-top: 20px;
+}
