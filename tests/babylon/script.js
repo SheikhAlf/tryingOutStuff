@@ -6,8 +6,15 @@ class TrackNode {
     this.y = y;
     this.z = z;
     this.a = a;
-    this.arrow = null;
     this.next = next;
+  }
+
+  toVector() {
+    return new BABYLON.Vector3(
+      this.x,
+      this.y,
+      this.z
+    );
   }
 }
 
@@ -15,27 +22,47 @@ class Track {
   constructor() {
     this.head = null;
     this.tail = null;
-    this.arrowController = null;
   }
 
   addPoint(x, y, z, a) {
     const node = new TrackNode(x, y, z, a, null);
+
     if (!this.head) {
       this.head = node;
       this.tail = node;
       return;
     }
-    this.tail.next = node
-    if (this.arrowController) {
-      this.arrowController.dispose();
-      this.arrowController = null;
+
+    this.tail.next = node;
+
+    //arrowController will exist just for the first 2 nodes
+    if (this.head.next === node) {
+      this.arrowController = this.createArrow(this.head);
+    } else if (this.arrowController) {
+        console.log("third node");
+        const arc = BABYLON.Curve3.ArcThru3Points(
+          this.head.toVector(), 
+          this.arrowController.toVector(), 
+          this.head.next.toVector(), 
+          30, false, false);
+        console.log(this.head.toVector());
+        console.log(this.arrowController.toVector()); 
+        console.log(this.head.next.toVector()); 
+        this.arcMesh = BABYLON.MeshBuilder.CreateLines("arcDebug", {
+            points: arc.getPoints(),
+            updatable: false
+        });
+        this.arcMesh.color = new BABYLON.Color3(0, 0, 1);
+
+        this.arrowController.dispose();
+        delete this.arrowController;
     }
-    this.arrowController = this.createArrow(this.tail);
-    this.tail = node;
+
+    this.tail = this.tail.next;
   }
 
   createArrow(node) {
-      const pos = new BABYLON.Vector3(node.x, node.y, node.z);
+      const pos = node.toVector();
 
       const sphere = BABYLON.MeshBuilder.CreateSphere("gizmoSphere", { diameter: 1 }, scene);
       sphere.position.copyFrom(pos);
@@ -46,10 +73,41 @@ class Track {
 
       const gizmo = new BABYLON.PositionGizmo();
       gizmo.attachedMesh = sphere;
+      gizmo.yGizmo.isEnabled = false;
+
+      gizmo.onDragObservable.add(() => {
+        if (!trackMeshes.length) {
+          return;
+        }  
+
+        const origin = new BABYLON.Vector3(
+          sphere.position.x,
+          1000,
+          sphere.position.z
+        );
+
+        const ray = new BABYLON.Ray(origin, BABYLON.Vector3.Down(), 2000);
+        const hit = scene.pickWithRay(ray, m => trackMeshes.includes(m));
+
+        if (hit && hit.pickedPoint) {
+          sphere.position.y = hit.pickedPoint.y;
+        }
+
+        gizmo.position = new BABYLON.Vector3(
+          sphere.position.x,
+          sphere.position.y,
+          sphere.position.z
+        );
+
+        console.log(gizmo.position);
+      });
       
       return {
           mesh: sphere,
           gizmo: gizmo,
+          toVector() {
+            return gizmo.position;
+          },
           dispose() {
               if (this.gizmo) {
                   this.gizmo.attachedMesh = null;
@@ -82,18 +140,30 @@ const camera = new BABYLON.FreeCamera(
   scene
 );
 camera.attachControl(canvas, true);
-camera.speed = 10;
+camera.speed = 12;
 camera.rotation = new BABYLON.Vector3(1.3135, 1.5185, 0);
 
-new BABYLON.PointLight("light", new BABYLON.Vector3(10, 10, 0), scene);
+const light = new BABYLON.PointLight("light", new BABYLON.Vector3(10, 10, 0), scene);
 
-BABYLON.SceneLoader.ImportMeshAsync("", "/assets/", "CavTestTrack.glb", scene);
+const axes = new BABYLON.AxesViewer(scene, 50);
+
+let trackMeshes = [];
+
+BABYLON.SceneLoader.ImportMeshAsync("", "/assets/", "CavTestTrack.glb", scene)
+  .then(result => {
+    trackMeshes = result.meshes.filter(m => m.isPickable);
+  });
 
 scene.onPointerObservable.add((pi) => {
-  if (pi.type !== BABYLON.PointerEventTypes.POINTERDOWN) return;
+  //pi is pointerInfo
+  if (pi.type !== BABYLON.PointerEventTypes.POINTERDOWN) {
+    return;
+  }  
 
   const pick = scene.pick(scene.pointerX, scene.pointerY);
-  if (!pick.hit || !pick.pickedPoint) return;
+  if (!pick.hit || !pick.pickedPoint) {
+    return;
+  }  
 
   const nodeMesh = BABYLON.MeshBuilder.CreateSphere(
     "node",
