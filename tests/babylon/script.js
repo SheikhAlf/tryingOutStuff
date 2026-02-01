@@ -30,7 +30,7 @@ class Track {
     if (!this.head) {
       this.head = node;
       this.tail = node;
-      return;
+      return node;
     }
 
     this.tail.next = node;
@@ -39,26 +39,56 @@ class Track {
     if (this.head.next === node) {
       this.arrowController = this.createArrow(this.head);
     } else if (this.arrowController) {
-        console.log("third node");
-        const arc = BABYLON.Curve3.ArcThru3Points(
-          this.head.toVector(), 
-          this.arrowController.toVector(), 
-          this.head.next.toVector(), 
-          30, false, false);
-        console.log(this.head.toVector());
-        console.log(this.arrowController.toVector()); 
-        console.log(this.head.next.toVector()); 
-        this.arcMesh = BABYLON.MeshBuilder.CreateLines("arcDebug", {
-            points: arc.getPoints(),
-            updatable: false
-        });
-        this.arcMesh.color = new BABYLON.Color3(0, 0, 1);
-
+        let points = this.connect(
+          this.head, 
+          this.arrowController, 
+          this.head.next
+        ).getPoints()
         this.arrowController.dispose();
         delete this.arrowController;
+        this.tail = this.tail.next;
+        return;
     }
-
     this.tail = this.tail.next;
+    
+    return node;
+  }
+
+  insert(previousNode, node) {
+    node.next = previousNode.next;
+    previousNode.next = node;
+  }
+
+  addPoints(arc, p1, p2) {
+    let current = this.head;
+    while (current) {
+      if (current === p1) {
+
+      }
+    }
+  }
+
+  connect(p1, p2, p3) {
+    let arc = BABYLON.Curve3.ArcThru3Points(
+      p1.toVector(), 
+      p2.toVector(), 
+      p3.toVector(), 
+      67, false, false
+    );
+    const len = Math.floor(arc.length());
+    console.log(len);
+    arc = BABYLON.Curve3.ArcThru3Points(
+      p1.toVector(), 
+      p2.toVector(), 
+      p3.toVector(), 
+      len, false, false
+    );
+    this.arcMesh = BABYLON.MeshBuilder.CreateLines("arcDebug", {
+        points: arc.getPoints(),
+        updatable: false
+    });
+    this.arcMesh.color = new BABYLON.Color3(0, 0, 1);
+    return arc;
   }
 
   createArrow(node) {
@@ -98,30 +128,41 @@ class Track {
           sphere.position.y,
           sphere.position.z
         );
-
-        console.log(gizmo.position);
       });
-      
-      return {
-          mesh: sphere,
-          gizmo: gizmo,
-          toVector() {
-            return gizmo.position;
-          },
-          dispose() {
-              if (this.gizmo) {
-                  this.gizmo.attachedMesh = null;
-                  this.gizmo.dispose();
-                  this.gizmo = null;
-              }
-              if (this.mesh) {
-                  this.mesh.dispose();
-                  this.mesh = null;
-              }
+
+      const arrowController = {
+        mesh: sphere,
+        gizmo: gizmo,
+        toVector() {
+          return gizmo.position;
+        },
+        dispose() {
+          if (this.gizmo) {
+            return;
           }
-      };
+          this.gizmo.attachedMesh = null;
+          this.gizmo.dispose();
+          this.gizmo = null;
+          if (this.mesh) {
+            return;
+          }
+          this.mesh.dispose();
+          this.mesh = null;
+        }
+      }
+
+      return arrowController;
   }
 
+  toString() {
+    let current = this.head;
+    let s = "";
+    while (current) {
+      s = s + "x:" + current.x + ", y:" + current.y + ", z:" + current.z + "; ";
+      current = current.next;
+    }
+    return s;
+  }
 }
 
 let path = new Track();
@@ -186,3 +227,9 @@ scene.onPointerObservable.add((pi) => {
 engine.runRenderLoop(() => {
   scene.render();
 });
+
+let list = new Track();
+let p1 = list.addPoint(1, 1, 1);
+let p2 = list.addPoint(3, 3, 3);
+list.insert(p1, new TrackNode(2, 2, 2));
+console.log(list.toString());
