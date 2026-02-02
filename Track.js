@@ -13,6 +13,40 @@ class TrackNode {
       this.z
     );
   }
+
+  projectOntoTrack() {
+    const origin = new BABYLON.Vector3(
+      this.x,
+      1000,
+      this.z
+    );
+
+    const ray = new BABYLON.Ray(
+      origin,
+      BABYLON.Vector3.Down(),
+      2000
+    );
+
+    const hit = scene.pickWithRay(ray, m => {
+      return trackMeshes.includes(m);
+    });
+
+    if (hit && hit.pickedPoint) {
+      this.y = hit.pickedPoint.y;
+    }
+  }
+
+  render() {
+    const nodeMesh = BABYLON.MeshBuilder.CreateSphere(
+      "node",
+      { diameter: 4 },
+      scene
+    );
+    nodeMesh.position.copyFrom(new BABYLON.Vector3(this.x, this.y, this.z));
+    const mat = new BABYLON.StandardMaterial("nodeMat", scene);
+    mat.diffuseColor = new BABYLON.Color3(1, 0, 0);
+    nodeMesh.material = mat;
+  }  
 }
 
 
@@ -37,7 +71,7 @@ class Track {
     if (this.head.next === node) {
       this.arrowController = this.createArrow(this.head);
     } else if (this.arrowController) {
-      let points = this.connect(
+      this.connect(
         this.head,
         this.arrowController,
         this.head.next
@@ -48,24 +82,21 @@ class Track {
       return;
     }
     this.tail = this.tail.next;
-
     return node;
   }
 
   insert(previousNode, sublist) {
     let c = sublist.head;
-    let i = 0;
     while (c) {
-      render(c);
+      c.render();
       c = c.next;
-      i++;
     }
-    console.log(i);
     sublist.tail.next = previousNode.next;
     previousNode.next = sublist.head;
   }
 
   addPoints(points) {
+    let n = null;
     for (let i = 0; i < points.length; i++) {
       if (i === 2) {
         this.arrowController.gizmo.position = new BABYLON.Vector3(
@@ -75,7 +106,9 @@ class Track {
         this.arrowController.dispose();
         delete this.arrowController;  
       } else {
-        this.addPoint(points[i].x, points[i].y, points[i].z);
+        n = new TrackNode(points[i].x, points[i].y, points[i].z);
+        n.projectOntoTrack();
+        this.addPoint(n.x, n.y, n.z);
       }
     };
   }
@@ -96,11 +129,9 @@ class Track {
     );
     let subtrack = new Track();
     subtrack.addPoints(arc.getPoints());
-    console.log(arc.getPoints());
-    console.log(subtrack.toString());
     this.insert(p1, subtrack);
     this.arcMesh = BABYLON.MeshBuilder.CreateLines("arcDebug", {
-      points: arc.getPoints(),
+      points: subtrack.getPoints(),
       updatable: false
     });
     this.arcMesh.color = new BABYLON.Color3(0, 0, 1);
@@ -166,6 +197,16 @@ class Track {
     }
 
     return arrowController;
+  }
+
+  getPoints() {
+    let c = this.head;
+    let points = [];
+    while (c) {
+      points.push(new BABYLON.Vector3(c.x, c.y, c.z));
+      c = c.next;
+    }
+    return points;
   }
 
   toString() {

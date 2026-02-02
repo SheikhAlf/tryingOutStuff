@@ -45,22 +45,9 @@ scene.onPointerObservable.add((pi) => {
     pick.pickedPoint.x, pick.pickedPoint.y, pick.pickedPoint.z
   );
 
-  render(node);
+  node.render();
   path.addPoint(node.x, node.y, node.z);
 });
-
-function render(node) {
-  const nodeMesh = BABYLON.MeshBuilder.CreateSphere(
-    "node",
-    { diameter: 4 },
-    scene
-  );
-  nodeMesh.position.copyFrom(new BABYLON.Vector3(node.x, node.y, node.z));
-
-  const mat = new BABYLON.StandardMaterial("nodeMat", scene);
-  mat.diffuseColor = new BABYLON.Color3(1, 0, 0);
-  nodeMesh.material = mat;
-}
 
 engine.runRenderLoop(() => {
   scene.render();
