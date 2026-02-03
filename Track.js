@@ -57,42 +57,66 @@ class Track {
   }
 
   addPoint(x, y, z) {
-    const node = new TrackNode(x, y, z, null);
+  const node = new TrackNode(x, y, z, null);
 
-    if (!this.head) {
-      this.head = node;
-      this.tail = node;
-      return node;
-    }
-
-    this.tail.next = node;
-
-    //arrowController will exist just for the first 2 nodes
-    if (this.head.next === node) {
-      this.arrowController = this.createArrow(this.head);
-    } else if (this.arrowController) {
-      this.connect(
-        this.head,
-        this.arrowController,
-        this.head.next
-      ).getPoints()
-      this.arrowController.dispose();
-      delete this.arrowController;
-      this.tail = this.tail.next;
-      return;
-    }
-    this.tail = this.tail.next;
+  if (!this.head) {
+    this.head = node;
+    this.tail = node;
     return node;
   }
+  this.tail.next = node;
 
-  insert(previousNode, sublist) {
-    let c = sublist.head;
-    while (c) {
-      c.render();
+  if (this.head.next === node) {
+    this.arrowController = this.createArrow(this.head);
+  } else if (this.arrowController) {
+    this.connect(
+      this.head,
+      this.arrowController,
+      this.head.next
+    );
+    this.arrowController.dispose();
+    delete this.arrowController;
+  }
+  let c = this.head;
+  while (c.next) {
       c = c.next;
+  }
+  this.tail = c;
+  c = this.head;
+  while (c.next) {
+    if (c.next.next === this.tail) {
+      createVerticalLine(c);
+      //createVerticalLine(c.next);
+      //createVerticalLine(this.tail);
+      this.connect(
+        c,
+        c.next,
+        this.tail
+      );
+      // After connecting, find the new tail
+      let temp = this.head;
+      while (temp.next) {
+        temp = temp.next;
+      }
+      this.tail = temp;
+      return;
     }
-    sublist.tail.next = previousNode.next;
-    previousNode.next = sublist.head;
+    c = c.next;
+  }
+}
+
+
+  insert(previousNode, points) {
+    let other = new TrackNode(points[0].x, points[0].y, points[0].z);
+    //other.render();
+    let head = other;
+    for (let i = 1; i < points.length; i++) {
+      other.next = new TrackNode(points[i].x, points[i].y, points[i].z);
+      other = other.next;
+      other.render();
+    }
+    other.next = previousNode.next;
+    previousNode.next = head;
   }
 
   addPoints(points) {
@@ -114,29 +138,82 @@ class Track {
   }
 
   connect(p1, p2, p3) {
-    let arc = BABYLON.Curve3.ArcThru3Points(
-      p1.toVector(),
-      p2.toVector(),
-      p3.toVector(),
-      67, false, false
-    );
-    const len = Math.floor(arc.length());
-    arc = BABYLON.Curve3.ArcThru3Points(
-      p1.toVector(),
-      p2.toVector(),
-      p3.toVector(),
-      len, false, false
-    );
-    let subtrack = new Track();
-    subtrack.addPoints(arc.getPoints());
-    this.insert(p1, subtrack);
+  let combinations = [
+    [p1, p2, p3],
+    [p1, p3, p2],
+    [p2, p1, p3],
+    [p2, p3, p1],
+    [p3, p1, p2],
+    [p3, p2, p1]
+  ];
+  
+  let bestLen = Infinity;
+  let bestCombo = null;
+  
+  combinations.forEach(comb => {
+    try {
+      let a = BABYLON.Curve3.ArcThru3Points(
+        comb[0].toVector(),
+        comb[1].toVector(),
+        comb[2].toVector(),
+        67, false, false
+      );
+      
+      const points = a.getPoints();
+      
+      if (points && points.length > 0 && a.length() < bestLen) {
+        bestLen = a.length();
+        bestCombo = comb;
+      }
+    } catch (e) {
+      console.warn("Failed to create arc for combination", comb, e);
+    }
+  });
+  
+  if (!bestCombo) {
+    console.warn("No valid arc found, using original order");
+    bestCombo = [p1, p2, p3];
+  }
+  
+  const numPoints = Math.max(32, Math.floor(bestLen / 10));
+  
+  const finalArc = BABYLON.Curve3.ArcThru3Points(
+    bestCombo[0].toVector(),
+    bestCombo[1].toVector(),
+    bestCombo[2].toVector(),
+    numPoints,
+    false,
+    false
+  );
+  
+  let points = finalArc.getPoints();
+  
+  const firstPoint = points[0];
+  const lastPoint = points[points.length - 1];
+  
+  const distFirstToP1 = BABYLON.Vector3.Distance(firstPoint, p1.toVector());
+  const distLastToP3 = BABYLON.Vector3.Distance(lastPoint, p3.toVector());
+  
+  if (distFirstToP1 > 1 || distLastToP3 > 1) {
+    points = points.reverse();
+  }
+  
+  if (points && points.length > 0) {
+    const insertPoints = points.slice(1, -1);
+    
+    if (insertPoints.length > 0) {
+      this.insert(p1, insertPoints);
+    }
+    
     this.arcMesh = BABYLON.MeshBuilder.CreateLines("arcDebug", {
-      points: subtrack.getPoints(),
+      points: points,
       updatable: false
     });
     this.arcMesh.color = new BABYLON.Color3(0, 0, 1);
-    return arc;
   }
+  
+  return finalArc;
+}
 
   createArrow(node) {
     const pos = node.toVector();
@@ -218,4 +295,22 @@ class Track {
     }
     return s;
   }
+}
+
+function createVerticalLine(node, height = 100) {
+  const startPoint = node.toVector();
+  const endPoint = new BABYLON.Vector3(
+    node.x,
+    node.y + height,
+    node.z
+  );
+  
+  const line = BABYLON.MeshBuilder.CreateLines("verticalLine", {
+    points: [startPoint, endPoint],
+    updatable: false
+  });
+  
+  line.color = new BABYLON.Color3(1, 1, 0); 
+  
+  return line;
 }

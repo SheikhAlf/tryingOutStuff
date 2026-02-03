@@ -25,7 +25,7 @@ const axes = new BABYLON.AxesViewer(scene, 50);
 
 let trackMeshes = [];
 
-BABYLON.SceneLoader.ImportMeshAsync("", "/assets/", "CavTestTrack.glb", scene)
+BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack.glb", scene)
   .then(result => {
     trackMeshes = result.meshes.filter(m => m.isPickable);
   });
