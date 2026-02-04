@@ -110,10 +110,12 @@ class Track {
     if (insertPoints.length > 0) {
       const p3Index = this.nodes.indexOf(p3);
       if (p3Index !== -1) {
-        const insertNodes = insertPoints.map(p =>
-          new TrackNode(p.x, p.y, p.z)
-        );
-
+        const insertNodes = insertPoints.map(p => {
+          const node = new TrackNode(p.x, p.y, p.z);
+          node.projectOntoTrack();
+          return node;
+        }  
+      );
         this.nodes.splice(p3Index, 0, ...insertNodes);
       }
     }
@@ -196,6 +198,18 @@ class Track {
     return this.nodes.map(node => 
       `x:${node.x}, y:${node.y}, z:${node.z}`
     ).join("; ");
+  }
+
+  exportJSON() {
+    // Convert TrackNode instances → plain objects
+    const data = this.nodes.map(node => ({
+      x: node.x,
+      y: node.y,
+      z: node.z
+    }));
+
+    // Return serialized JSON string
+    return JSON.stringify(data, null, 2);
   }
 }
 

@@ -28,6 +28,20 @@ let trackMeshes = [];
 BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack.glb", scene)
   .then(result => {
     trackMeshes = result.meshes.filter(m => m.isPickable);
+    const exportTrackBtn = document.querySelector('#exportTrack');
+    exportTrackBtn.addEventListener("click", () => {
+      const json = path.exportJSON();
+      const blob = new Blob(
+        [json],
+        { type: "application/json" }
+      );
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "track_nodes.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
   });
 
 scene.onPointerObservable.add((pi) => {
