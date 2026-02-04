@@ -1,9 +1,8 @@
 class TrackNode {
-  constructor(x, y, z, next) {
+  constructor(x, y, z) {
     this.x = x;
     this.y = y;
     this.z = z;
-    this.next = next == undefined ? null : next;
   }
 
   toVector() {
@@ -52,157 +51,71 @@ class TrackNode {
 
 class Track {
   constructor() {
-    this.head = null;
-    this.tail = null;
+    this.nodes = [];
   }
 
   addPoint(x, y, z) {
-  const node = new TrackNode(x, y, z, null);
-
-  if (!this.head) {
-    this.head = node;
-    this.tail = node;
+    const node = new TrackNode(x, y, z);
+    this.nodes.push(node);
+    
+    if (this.nodes.length === 1) {
+      return node;
+    }
+    
+    if (this.nodes.length === 2) {
+      this.arrowController = this.createArrow(this.nodes[0]);
+      return node;
+    }
+    
+    if (this.nodes.length === 3) {
+      this.connect(
+        this.nodes[0],
+        this.arrowController,
+        this.nodes[1]
+      );
+      this.arrowController.dispose();
+      delete this.arrowController;
+    }
+    let len = this.nodes.length;
+    this.connect(
+      this.nodes[len-3],
+      this.nodes[len-2],
+      this.nodes[len-1]
+    );
+    
     return node;
   }
-  this.tail.next = node;
 
-  if (this.head.next === node) {
-    this.arrowController = this.createArrow(this.head);
-  } else if (this.arrowController) {
-    this.connect(
-      this.head,
-      this.arrowController,
-      this.head.next
-    );
-    this.arrowController.dispose();
-    delete this.arrowController;
-  }
-  let c = this.head;
-  while (c.next) {
-      c = c.next;
-  }
-  this.tail = c;
-  c = this.head;
-  while (c.next) {
-    if (c.next.next === this.tail) {
-      createVerticalLine(c);
-      //createVerticalLine(c.next);
-      //createVerticalLine(this.tail);
-      this.connect(
-        c,
-        c.next,
-        this.tail
-      );
-      // After connecting, find the new tail
-      let temp = this.head;
-      while (temp.next) {
-        temp = temp.next;
-      }
-      this.tail = temp;
-      return;
-    }
-    c = c.next;
-  }
-}
-
-
-  insert(previousNode, points) {
-    let other = new TrackNode(points[0].x, points[0].y, points[0].z);
-    //other.render();
-    let head = other;
-    for (let i = 1; i < points.length; i++) {
-      other.next = new TrackNode(points[i].x, points[i].y, points[i].z);
-      other = other.next;
-      other.render();
-    }
-    other.next = previousNode.next;
-    previousNode.next = head;
-  }
-
-  addPoints(points) {
-    let n = null;
-    for (let i = 0; i < points.length; i++) {
-      if (i === 2) {
-        this.arrowController.gizmo.position = new BABYLON.Vector3(
-          points[i].x, points[i].y, points[i].z
-        );
-      } else if (i === 3) {
-        this.arrowController.dispose();
-        delete this.arrowController;  
-      } else {
-        n = new TrackNode(points[i].x, points[i].y, points[i].z);
-        n.projectOntoTrack();
-        this.addPoint(n.x, n.y, n.z);
-      }
-    };
+  insert(index, points) {
+    const insertNodes = points.map(p => new TrackNode(p.x, p.y, p.z));
+    this.nodes.splice(index + 1, 0, ...insertNodes);
   }
 
   connect(p1, p2, p3) {
-  let combinations = [
-    [p1, p2, p3],
-    [p1, p3, p2],
-    [p2, p1, p3],
-    [p2, p3, p1],
-    [p3, p1, p2],
-    [p3, p2, p1]
-  ];
-  
-  let bestLen = Infinity;
-  let bestCombo = null;
-  
-  combinations.forEach(comb => {
-    try {
-      let a = BABYLON.Curve3.ArcThru3Points(
-        comb[0].toVector(),
-        comb[1].toVector(),
-        comb[2].toVector(),
-        67, false, false
-      );
-      
-      const points = a.getPoints();
-      
-      if (points && points.length > 0 && a.length() < bestLen) {
-        bestLen = a.length();
-        bestCombo = comb;
-      }
-    } catch (e) {
-      console.warn("Failed to create arc for combination", comb, e);
-    }
-  });
-  
-  if (!bestCombo) {
-    console.warn("No valid arc found, using original order");
-    bestCombo = [p1, p2, p3];
-  }
-  
-  const numPoints = Math.max(32, Math.floor(bestLen / 10));
-  
-  const finalArc = BABYLON.Curve3.ArcThru3Points(
-    bestCombo[0].toVector(),
-    bestCombo[1].toVector(),
-    bestCombo[2].toVector(),
-    numPoints,
-    false,
-    false
-  );
-  
-  let points = finalArc.getPoints();
-  
-  const firstPoint = points[0];
-  const lastPoint = points[points.length - 1];
-  
-  const distFirstToP1 = BABYLON.Vector3.Distance(firstPoint, p1.toVector());
-  const distLastToP3 = BABYLON.Vector3.Distance(lastPoint, p3.toVector());
-  
-  if (distFirstToP1 > 1 || distLastToP3 > 1) {
-    points = points.reverse();
-  }
-  
-  if (points && points.length > 0) {
-    const insertPoints = points.slice(1, -1);
+    const numPoints = 33;
+    
+    const arc = BABYLON.Curve3.ArcThru3Points(
+      p1.toVector(),
+      p2.toVector(),
+      p3.toVector(),
+      numPoints,
+      false,
+      false
+    );
+    
+    let points = arc.getPoints();
+    
+    const insertPoints = points.slice(1, -2);
     
     if (insertPoints.length > 0) {
-      this.insert(p1, insertPoints);
+      const p3Index = this.nodes.indexOf(p3);
+      if (p3Index !== -1) {
+        const insertNodes = insertPoints.map(p =>
+          new TrackNode(p.x, p.y, p.z)
+        );
+
+        this.nodes.splice(p3Index, 0, ...insertNodes);
+      }
     }
     
     this.arcMesh = BABYLON.MeshBuilder.CreateLines("arcDebug", {
@@ -210,10 +123,9 @@ class Track {
       updatable: false
     });
     this.arcMesh.color = new BABYLON.Color3(0, 0, 1);
+    
+    return arc;
   }
-  
-  return finalArc;
-}
 
   createArrow(node) {
     const pos = node.toVector();
@@ -277,23 +189,13 @@ class Track {
   }
 
   getPoints() {
-    let c = this.head;
-    let points = [];
-    while (c) {
-      points.push(new BABYLON.Vector3(c.x, c.y, c.z));
-      c = c.next;
-    }
-    return points;
+    return this.nodes.map(node => new BABYLON.Vector3(node.x, node.y, node.z));
   }
 
   toString() {
-    let current = this.head;
-    let s = "";
-    while (current) {
-      s = s + "x:" + current.x + ", y:" + current.y + ", z:" + current.z + "; ";
-      current = current.next;
-    }
-    return s;
+    return this.nodes.map(node => 
+      `x:${node.x}, y:${node.y}, z:${node.z}`
+    ).join("; ");
   }
 }
 
