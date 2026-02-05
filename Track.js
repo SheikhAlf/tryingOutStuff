@@ -156,16 +156,16 @@ class Track {
     });
 
     if (p2 !== this.arrowController) {
-  const epsilon = 0.01;
-  const p2Index = points.findIndex(p => 
-    Math.abs(p.x - p2.x) < epsilon &&
-    Math.abs(p.y - p2.y) < epsilon &&
-    Math.abs(p.z - p2.z) < epsilon
-  );
+    const epsilon = 0.01;
+    const p2Index = points.findIndex(p => 
+      Math.abs(p.x - p2.x) < epsilon &&
+      Math.abs(p.y - p2.y) < epsilon &&
+      Math.abs(p.z - p2.z) < epsilon
+    );
 
-  if (p2Index !== -1) {
-    points = points.slice(p2Index + 1);
-  }
+    if (p2Index !== -1) {
+      points = points.slice(p2Index + 1);
+    }
 }
 
     
