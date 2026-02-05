@@ -15,7 +15,7 @@ const camera = new BABYLON.FreeCamera(
 );
 camera.attachControl(canvas, true);
 camera.speed = 12;
-camera.rotation = new BABYLON.Vector3(1.3135, 1.5185, 0);
+camera.rotation = new BABYLON.Vector3(1.42, 1.5185, 0);
 
 const light = new BABYLON.PointLight("light", new BABYLON.Vector3(10, 10, 0), scene);
 
@@ -62,8 +62,9 @@ BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack.glb", scene)
         if (len > 1) {
           const meshLines = BABYLON.MeshBuilder.CreateLines('line', {
             points: [
-              path.nodes[len-1].toVector(),
-              path.nodes[len-2].toVector()],
+              path.nodes[len-1].toVector().add(new BABYLON.Vector3(0, 0.5, 0)),
+              path.nodes[len-2].toVector().add(new BABYLON.Vector3(0, 0.5, 0))
+            ],
             updatable: false
           });
           meshLines.color = new BABYLON.Color3(0, 0, 1)
@@ -76,12 +77,13 @@ BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack.glb", scene)
     //run simulation button
     const runSimulationButton = document.querySelector('#runSimulation');
     runSimulationButton.addEventListener('click', () => {
-      /*
+      
       path.meshesLines.forEach(m => {
         if (m) {
           m.dispose();
         }
       });
+      /*
       path.meshesNodes.forEach(m => {
         if (m) {
           m.dispose();

@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <title>Simulator</title>
     <link rel="stylesheet" href="style.css"></link>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet">
   </head>
   <body>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
@@ -13,9 +14,11 @@
     <script src="script.js"></script>
     <script src="simulation.js"></script>
 
-    <button id="exportTrack">Export Track JSON</button>
-    <button id="runSimulation">Run Simulation</button>
-    <button id="undo">Undo</button>
-    <input type="file" id="importTrack" accept=".json" />
+    <div id="uiBar">
+      <button id="exportTrack">Export Track JSON</button>
+      <button id="runSimulation">Run Simulation</button>
+      <button id="undo">Undo</button>
+      <input type="file" id="importTrack" accept=".json" />
+    </div>
   </body>
 </html>

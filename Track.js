@@ -156,7 +156,7 @@ class Track {
     });
 
     if (p2 !== this.arrowController) {
-      const epsilon = 0.5;
+      const epsilon = 2;
       const p2Index = points.findIndex(p => 
         Math.abs(p.x - p2.x) < epsilon &&
         Math.abs(p.y - p2.y) < epsilon &&
