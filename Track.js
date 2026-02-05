@@ -45,6 +45,7 @@ class TrackNode {
     const mat = new BABYLON.StandardMaterial("nodeMat", scene);
     mat.diffuseColor = new BABYLON.Color3(1, 0, 0);
     nodeMesh.material = mat;
+    return nodeMesh;
   }  
 }
 
@@ -52,11 +53,15 @@ class TrackNode {
 class Track {
   constructor() {
     this.nodes = [];
+    this.meshesNodes = [];
+    this.meshesLines = [];
   }
 
   addPoint(x, y, z) {
     const node = new TrackNode(x, y, z);
     this.nodes.push(node);
+    const nodeMesh = node.render();
+    this.meshesNodes.push(nodeMesh);
     
     if (this.nodes.length === 1) {
       return node;
@@ -104,27 +109,50 @@ class Track {
     );
     
     let points = arc.getPoints();
-    
-    const insertPoints = points.slice(1, -2);
-    
-    if (insertPoints.length > 0) {
-      const p3Index = this.nodes.indexOf(p3);
-      if (p3Index !== -1) {
-        const insertNodes = insertPoints.map(p => {
-          const node = new TrackNode(p.x, p.y, p.z);
-          node.projectOntoTrack();
-          return node;
-        }  
+
+    points.forEach(p => {
+      const ray = new BABYLON.Ray(
+        new BABYLON.Vector3(p.x, 1000, p.z),
+        BABYLON.Vector3.Down(),
+        2000
       );
-        this.nodes.splice(p3Index, 0, ...insertNodes);
+      const hit = scene.pickWithRay(ray, m => trackMeshes.includes(m));
+      if (hit && hit.pickedPoint) {
+        p.y = hit.pickedPoint.y + 0.5; //0.5 so it doesnt clip
       }
+    });
+
+    if (p2 !== this.arrowController) {
+      const p2Vec = p2.toVector();
+      let p2Index = -1;
+      for (let i = 0; i < points.length; i++) {
+        if (
+          points[i].x === p2Vec.x &&
+          points[i].y === p2Vec.y &&
+          points[i].z === p2Vec.z) 
+        {
+          p2Index = i;
+        }
+      }
+      points = points.slice(p2Index + 1);
     }
     
-    this.arcMesh = BABYLON.MeshBuilder.CreateLines("arcDebug", {
+    const insertPoints = points.slice(0, -1);
+    
+    const p3Index = this.nodes.indexOf(p3);
+    const insertNodes = insertPoints.map(p => {
+      const node = new TrackNode(p.x, p.y, p.z);
+      node.projectOntoTrack();
+      return node;  
+    });
+    this.nodes.splice(p3Index, 0, ...insertNodes);
+    
+    const arcMesh = BABYLON.MeshBuilder.CreateLines("arcDebug", {
       points: points,
       updatable: false
     });
-    this.arcMesh.color = new BABYLON.Color3(0, 0, 1);
+    arcMesh.color = new BABYLON.Color3(0, 0, 1);
+    this.meshesLines.push(arcMesh);
     
     return arc;
   }
@@ -194,21 +222,13 @@ class Track {
     return this.nodes.map(node => new BABYLON.Vector3(node.x, node.y, node.z));
   }
 
-  toString() {
-    return this.nodes.map(node => 
-      `x:${node.x}, y:${node.y}, z:${node.z}`
-    ).join("; ");
-  }
-
   exportJSON() {
-    // Convert TrackNode instances → plain objects
     const data = this.nodes.map(node => ({
       x: node.x,
       y: node.y,
       z: node.z
     }));
 
-    // Return serialized JSON string
     return JSON.stringify(data, null, 2);
   }
 }

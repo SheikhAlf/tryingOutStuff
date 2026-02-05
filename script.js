@@ -28,6 +28,7 @@ let trackMeshes = [];
 BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack.glb", scene)
   .then(result => {
     trackMeshes = result.meshes.filter(m => m.isPickable);
+    //export button
     const exportTrackBtn = document.querySelector('#exportTrack');
     exportTrackBtn.addEventListener("click", () => {
       const json = path.exportJSON();
@@ -41,6 +42,35 @@ BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack.glb", scene)
       a.download = "track_nodes.json";
       a.click();
       URL.revokeObjectURL(url);
+    });
+    //import button
+    const importTrackInput = document.querySelector('#importTrack');
+
+    importTrackInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) {
+        return;
+      }  
+      const text = await file.text();   
+      const data = JSON.parse(text);     
+
+      path.nodes = [];
+
+      data.forEach(p => {
+        const node = new TrackNode(p.x, p.y, p.z);
+        path.nodes.push(node);
+        path.nodes[path.nodes.length-1].render(); 
+        const len = path.nodes.length;
+        if (len > 1) {
+          BABYLON.MeshBuilder.CreateLines("line", {
+            points: [
+              path.nodes[path.nodes.length-1].toVector(),
+              path.nodes[path.nodes.length-2].toVector()],
+            updatable: false
+          }).color = new BABYLON.Color3(0, 0, 1);
+        }
+      });
+      importTrackInput.value = '';
     });
   });
 
@@ -58,8 +88,6 @@ scene.onPointerObservable.add((pi) => {
   const node = new TrackNode(
     pick.pickedPoint.x, pick.pickedPoint.y, pick.pickedPoint.z
   );
-
-  node.render();
   path.addPoint(node.x, node.y, node.z);
 });
 
