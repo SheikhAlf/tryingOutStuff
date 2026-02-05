@@ -1,5 +1,3 @@
-"use strict";
-
 let path = new Track();
 
 const canvas = document.querySelector("canvas");
@@ -78,6 +76,7 @@ BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack.glb", scene)
     //run simulation button
     const runSimulationButton = document.querySelector('#runSimulation');
     runSimulationButton.addEventListener('click', () => {
+      /*
       path.meshesLines.forEach(m => {
         if (m) {
           m.dispose();
@@ -88,11 +87,18 @@ BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack.glb", scene)
           m.dispose();
         }  
       });
+      */
+      startSimulation(path, scene, engine, canvas);
+    });
+
+    //undo button
+    const undoButton = document.querySelector('#undo');
+    undoButton.addEventListener('click', () => {
+      path.undo();
     });
   });
 
-scene.onPointerObservable.add((pi) => {
-  //pi is pointerInfo
+scene.onPointerObservable.add((pi) => { //pi is pointerInfo
   if (pi.type !== BABYLON.PointerEventTypes.POINTERDOWN) {
     return;
   }  

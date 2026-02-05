@@ -156,17 +156,11 @@ class Track {
     });
 
     if (p2 !== this.arrowController) {
-      const p2Vec = p2.toVector();
-      let p2Index = -1;
-      for (let i = 0; i < points.length; i++) {
-        if (
-          points[i].x === p2Vec.x &&
-          points[i].y === p2Vec.y &&
-          points[i].z === p2Vec.z) 
-        {
-          p2Index = i;
-        }
-      }
+      const p2Index = points.filter(p => 
+          p.x === p2.x &&
+          p.y === p2.y &&
+          p.z === p2.z
+      )[0];
       points = points.slice(p2Index + 1);
     }
     
