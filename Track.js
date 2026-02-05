@@ -156,15 +156,20 @@ class Track {
     });
 
     if (p2 !== this.arrowController) {
-      const p2Index = points.filter(p => 
-          p.x === p2.x &&
-          p.y === p2.y &&
-          p.z === p2.z
-      )[0];
-      points = points.slice(p2Index + 1);
-    }
+  const epsilon = 0.01;
+  const p2Index = points.findIndex(p => 
+    Math.abs(p.x - p2.x) < epsilon &&
+    Math.abs(p.y - p2.y) < epsilon &&
+    Math.abs(p.z - p2.z) < epsilon
+  );
+
+  if (p2Index !== -1) {
+    points = points.slice(p2Index + 1);
+  }
+}
+
     
-    const insertPoints = points.slice(0, -1);
+    const insertPoints = points.slice(1, -1);
     
     const p3Index = this.nodes.indexOf(p3);
     const insertNodes = insertPoints.map(p => {
