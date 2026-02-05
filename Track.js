@@ -55,6 +55,7 @@ class Track {
     this.nodes = [];
     this.meshesNodes = [];
     this.meshesLines = [];
+    this.history = [];
   }
 
   addPoint(x, y, z) {
@@ -63,32 +64,64 @@ class Track {
     const nodeMesh = node.render();
     this.meshesNodes.push(nodeMesh);
     
+    const action = {
+      nodesAdded: [node],
+      meshesAdded: [nodeMesh]
+    };
+    
     if (this.nodes.length === 1) {
       return node;
     }
     
     if (this.nodes.length === 2) {
       this.arrowController = this.createArrow(this.nodes[0]);
+      action.meshesAdded.push(this.arrowController.mesh);
       return node;
     }
     
     if (this.nodes.length === 3) {
-      this.connect(
+      const firstArc = this.connect(
         this.nodes[0],
         this.arrowController,
         this.nodes[1]
       );
+      action.meshesAdded.push(firstArc.mesh);
+      action.nodesAdded.push(...firstArc.insertedNodes);
       this.arrowController.dispose();
       delete this.arrowController;
     }
     let len = this.nodes.length;
-    this.connect(
+    const arc = this.connect(
       this.nodes[len-3],
       this.nodes[len-2],
       this.nodes[len-1]
     );
-    
+    action.meshesAdded.push(arc.mesh);
+    action.nodesAdded.push(...arc.insertedNodes);
+
+    this.history.push(action);
     return node;
+  }
+
+  undo() {
+    if (this.history.length === 0) {
+      return;
+    }
+    const action = this.history.pop();
+    action.nodesAdded.forEach(n => {
+      const index = this.nodes.indexOf(n);
+      if (index !== -1) {
+        this.nodes.splice(index, 1);
+      }
+    });
+    action.meshesAdded.forEach(m => {
+      if (m) {
+        m.dispose();
+      }
+    });
+    if (this.nodes.length === 2) {
+      this.arrowController = this.createArrow(this.nodes[0]);
+    }
   }
 
   insert(index, points) {
@@ -153,6 +186,8 @@ class Track {
     });
     arcMesh.color = new BABYLON.Color3(0, 0, 1);
     this.meshesLines.push(arcMesh);
+    arc.mesh = arcMesh; //adding mesh field
+    arc.insertedNodes = insertNodes; //adding inserted nodes field
     
     return arc;
   }
@@ -228,7 +263,6 @@ class Track {
       y: node.y,
       z: node.z
     }));
-
     return JSON.stringify(data, null, 2);
   }
 }

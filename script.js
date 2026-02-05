@@ -21,16 +21,15 @@ camera.rotation = new BABYLON.Vector3(1.3135, 1.5185, 0);
 
 const light = new BABYLON.PointLight("light", new BABYLON.Vector3(10, 10, 0), scene);
 
-const axes = new BABYLON.AxesViewer(scene, 50);
-
 let trackMeshes = [];
 
 BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack.glb", scene)
   .then(result => {
     trackMeshes = result.meshes.filter(m => m.isPickable);
+
     //export button
-    const exportTrackBtn = document.querySelector('#exportTrack');
-    exportTrackBtn.addEventListener("click", () => {
+    const exportTrackButton = document.querySelector('#exportTrack');
+    exportTrackButton.addEventListener("click", () => {
       const json = path.exportJSON();
       const blob = new Blob(
         [json],
@@ -43,6 +42,7 @@ BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack.glb", scene)
       a.click();
       URL.revokeObjectURL(url);
     });
+
     //import button
     const importTrackInput = document.querySelector('#importTrack');
 
@@ -59,18 +59,35 @@ BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack.glb", scene)
       data.forEach(p => {
         const node = new TrackNode(p.x, p.y, p.z);
         path.nodes.push(node);
-        path.nodes[path.nodes.length-1].render(); 
         const len = path.nodes.length;
+        //path.meshesNodes.push(path.nodes[len-1].render()); 
         if (len > 1) {
-          BABYLON.MeshBuilder.CreateLines("line", {
+          const meshLines = BABYLON.MeshBuilder.CreateLines('line', {
             points: [
-              path.nodes[path.nodes.length-1].toVector(),
-              path.nodes[path.nodes.length-2].toVector()],
+              path.nodes[len-1].toVector(),
+              path.nodes[len-2].toVector()],
             updatable: false
-          }).color = new BABYLON.Color3(0, 0, 1);
+          });
+          meshLines.color = new BABYLON.Color3(0, 0, 1)
+          path.meshesLines.push(meshLines);
         }
       });
       importTrackInput.value = '';
+    });
+
+    //run simulation button
+    const runSimulationButton = document.querySelector('#runSimulation');
+    runSimulationButton.addEventListener('click', () => {
+      path.meshesLines.forEach(m => {
+        if (m) {
+          m.dispose();
+        }
+      });
+      path.meshesNodes.forEach(m => {
+        if (m) {
+          m.dispose();
+        }  
+      });
     });
   });
 
@@ -93,4 +110,10 @@ scene.onPointerObservable.add((pi) => {
 
 engine.runRenderLoop(() => {
   scene.render();
+});
+
+window.addEventListener("keydown", e => {
+  if (e.ctrlKey && e.key.toLowerCase() === "z") {
+    path.undo();
+  }
 });
