@@ -155,17 +155,23 @@ class Track {
       }
     });
 
-    if (p2 !== this.arrowController) {
-      const epsilon = 2;
-      const p2Index = points.findIndex(p => 
-        Math.abs(p.x - p2.x) < epsilon &&
-        Math.abs(p.y - p2.y) < epsilon &&
-        Math.abs(p.z - p2.z) < epsilon
-      );
-
-      if (p2Index !== -1) {
-        points = points.slice(p2Index + 1);
+    if (this.nodes.length > 2) {
+      let beforeP2Index = 0;
+      let dx = points[0].x - p.x;
+      let dy = points[0].y - p.y;
+      let dz = points[0].z - p.z;
+      let minDist = dx*dx + dy*dy + dz*dz;
+      for (let i = 1; i < points.length; i++) {
+        dx = points[i].x - p.x;
+        dy = points[i].y - p.y;
+        dz = points[i].z - p.z;
+        const dist = dx*dx + dy*dy + dz*dz;
+        if (dist < minDist) {
+          minDist = dist;
+          beforeP2Index = i;
+        }
       }
+      points = points.slice(beforeP2Index+1);
     }
     
     const insertPoints = points.slice(1, -1);
