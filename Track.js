@@ -157,14 +157,14 @@ class Track {
 
     if (this.nodes.length > 2) {
       let beforeP2Index = 0;
-      let dx = points[0].x - p.x;
-      let dy = points[0].y - p.y;
-      let dz = points[0].z - p.z;
+      let dx = points[0].x - p2.x;
+      let dy = points[0].y - p2.y;
+      let dz = points[0].z - p2.z;
       let minDist = dx*dx + dy*dy + dz*dz;
       for (let i = 1; i < points.length; i++) {
-        dx = points[i].x - p.x;
-        dy = points[i].y - p.y;
-        dz = points[i].z - p.z;
+        dx = points[i].x - p2.x;
+        dy = points[i].y - p2.y;
+        dz = points[i].z - p2.z;
         const dist = dx*dx + dy*dy + dz*dz;
         if (dist < minDist) {
           minDist = dist;
@@ -184,7 +184,8 @@ class Track {
       return node;  
     });
     this.nodes.splice(p3Index, 0, ...insertNodes);
-    
+
+    points.unshift(p2);
     const arcMesh = BABYLON.MeshBuilder.CreateLines("arcDebug", {
       points: points,
       updatable: false
@@ -193,7 +194,8 @@ class Track {
     this.meshesLines.push(arcMesh);
     arc.mesh = arcMesh; //adding mesh field
     arc.insertedNodes = insertNodes; //adding inserted nodes field
-    
+    points.shift();
+
     return arc;
   }
 
