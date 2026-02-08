@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <title>RLS Garage</title>
+    <link rel="stylesheet" href="style.css"></link>
+    <link rel="icon" type="image/x-icon" href="/images/RLSlogo.ico">
+  </head>
+  <body>
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <canvas id="canvas" tabindex="1"></canvas>
+
+
+    <div class="columns" id="ui">
+
+      <div class="box">
+        <div id="tabsLine">
+
+          <div class="tabs" id="tabs">
+            <ul>
+              <li class="is-active" id="carUi" data-id="carUi">
+                <a data-id="carUi">Car Ui</a>
+              </li>
+  
+              <li id="carSetup" data-id="carSetup">
+                <a data-id="carSetup">Car Setup</a>
+              </li>
+  
+              <li id="camera" data-id="camera">
+                <a data-id="camera">Cameras</a>
+              </li>
+  
+              <li id="animations" data-id="animations">
+                <a data-id="animations">Animations</a>
+              </li>
+  
+            </ul>
+          </div>
+
+          <button class="button is-info is-light ml-5 mt-2" id="infoBtn" title="View car creation documentation">🛈</button>
+
+        </div>
+
+        <div id="content">
+
+        </div>
+
+        <div id="IpCarButtonLine">
+            <button class="button is-link mt-2 uiBtn" id="selectCarFile">
+              <input class="file-input" type="file" name="importedCarFile" accept=".json"/>
+              <span>↑ Select Car File</span>
+            </button>
+        </div>
+
+        <div id="IpModelButtonLine">
+            <button class="button is-link is-light mt-2 uiBtn" id="selectCarModel">
+              <input class="file-input" type="file" name="importedCarModel" id="selectCarModelIn" accept=".glb"/>
+              <span>↑ Select Car Model File</span>
+            </button>
+        </div>
+
+
+        <div id="SvButtonLine">
+          <button class="button is-info mt-2 uiBtn" id="saveCar">
+              <span>⤓ Save Car</span>
+          </button>
+        </div>
+
+      </div>
+      
+
+      <button id="menuToggle" class="button bd-docs-button mt-5">&lt</button>
+
+    </div>
+    
+    <script src="uiScript.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

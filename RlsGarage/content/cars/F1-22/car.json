@@ -1,0 +1,93 @@
+{
+    "manufacture": "CAV",
+    "model": "EH-22",
+    "year": 2022,
+    "category":"F1",
+    "description": "F1 2022",
+    "preview":"preview.png",
+    "model3D":"F1LowPoly.glb",
+
+    "mass": {"min": 800, "max": 850},
+    "fuel": {"min": 5, "max": 110},
+
+    "area": {"min": 1.600, "max": 1.650},
+    "Cl": {"min": -2.6, "max": -2.1},
+    "Cd": {"min": 0.8, "max": 1},
+    "bindedAero": true,
+
+    "Fan":{
+        "force":{"min":0, "max":0},
+        "fuelConsumption":{"min":0, "max":0},
+        "energyConsumption":{"min":0 ,"max":0},
+        "bindedPowerConsumption":true,
+
+        "deploySpeed":{"min":0, "max":0},
+        "deployCutSpeed":{"min":0, "max":0}
+    },
+
+    "steeringRatio":{"min": 12.5, "max": 13.5},
+
+    "brakingTorque":{"min": 6000,"max": 6600},
+    "AvrgWheelRadius": 0.56,
+
+    "ICE":{
+        "hasICE":true,
+        "power":{"min": 500,"max": 596.56},
+        "fuelConsumption":{"min": 3.6, "max": 2.86},
+        "bindedPowerConsumption": true,
+        "powerCanBeZero": false,
+        "engineBraking": 500,
+
+        "deploySpeed":{"min":0,"max":0},
+        "deployCutSpeed":{"min":null,"max":null}
+    },
+
+
+    "EE":{
+        "hasEE":true,
+        "power":{"min": 0,"max": 150},
+        "energyConsumption":{"min": 2, "max": 1.25},
+        "bindedPowerConsumption": true,
+
+        "powerCanBeZero": true,
+        "engineBraking": {"min": 50, "max": 200},
+        "energyRecovery": {"min": 0.2, "max": 0.5},
+        "bindedBrakingRecovery":true,
+
+        "deployPerLap":{"min":2,"max":2},
+        "recoveryPerLap":{"min":4, "max":4},
+
+        "deploySpeed":{"min":0, "max":50},
+        "deployCutSpeed":{"min": null,"max": null}
+    },
+
+
+    "PU":{
+        "powerCap":{"min": null, "max": null},
+        "topSpeedCap":{"min": 0, "max": 105.5}
+    },
+
+
+    "gearBox":{
+        "RPM":{
+            "idle":4000, 
+            "min":9000, 
+            "shift": 12000,
+            "max": 13500, 
+            "variation": 100
+        },
+
+        
+        "gears":[
+            0,
+            25.5, 
+            36.1, 
+            47.2, 
+            54.1, 
+            64, 
+            73.6, 
+            81.3,
+            105.5
+        ]
+    }
+}
