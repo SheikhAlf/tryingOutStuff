@@ -1,7 +1,11 @@
+//Ui related tags ids
 const ui = document.querySelector('#ui');
 const menuToggle = {element: document.querySelector('#menuToggle'), state: 0};
 const tabs = ui.querySelector('#tabs');
 let activeTab = "carUi";
+
+//files
+let previewImageFile;
 
 
 //mouse position stuff
@@ -84,4 +88,18 @@ menuToggle.element.addEventListener("click", (event) => {
         menuToggle.state = 0;
         xBounds.min = (viewPortWidth/100)*25;
     }
+});
+
+
+//Car Ui
+const previewImage = ui.querySelector("#previewImage");
+const previewImageInput = ui.querySelector("#selectImageInput");
+
+previewImageInput.addEventListener('change', async (event)=>{
+  const file = event.target.files[0]; 
+  const url = URL.createObjectURL(file);
+
+  previewImageFile = file;
+
+  previewImage.setAttribute("src", url);
 });
