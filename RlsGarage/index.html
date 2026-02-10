@@ -52,9 +52,8 @@
             <img id="previewImage" src="./assets/SelectImage.png" alt="Select Preview Image"/>
           </div>
 
-          <div>
-            Manufacture:
-            <input class="input" type="text" placeholder="Text input" />
+          <div id="manufactureLine">
+            <div class="title is-5 mt-4">Manufacture:</div><input class="input mt-2 ml-2" type="text" placeholder="Manufacture" id="manufactureIn"/>
           </div>
         </div>
 
@@ -62,16 +61,21 @@
 
 
         <div id="IpCarButtonLine">
-            <button class="button is-link mt-2 uiBtn" id="selectCarFile">
-              <input class="file-input" type="file" name="importedCarFile" accept=".json"/>
-              <span>↑ Select Car Data File</span>
+            <button class="button is-info is-inverted is-outlined mt-2 uiBtn" id="selectCarFile">
+              <input class="file-input" type="file" name="importedCarFile" accept=".zip"/>
+              <span>↑ Select Car File</span>
             </button>
         </div>
 
         <div id="IpModelButtonLine">
-            <button class="button is-link is-light mt-2 uiBtn" id="selectCarModel">
+            <button class="button is-link is-light mt-2" id="selectCarModel">
               <input class="file-input" type="file" name="importedCarModel" id="selectCarModelIn" accept=".glb"/>
               <span>↑ Select Car Model File</span>
+            </button>
+
+            <button class="button is-link mt-2" id="selectCarDataFile">
+              <input class="file-input" type="file" name="importedCarFile" accept=".json"/>
+              <span>↑ Select Car Data File</span>
             </button>
         </div>
 

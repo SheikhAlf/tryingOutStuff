@@ -33,6 +33,7 @@
     "ICE":{
         "hasICE":true,
         "power":{"min": 500,"max": 596.56},
+        "powerCap":{"min": 0, "max": null},
         "fuelConsumption":{"min": 3.6, "max": 2.86},
         "bindedPowerConsumption": true,
         "powerCanBeZero": false,
@@ -46,6 +47,7 @@
     "EE":{
         "hasEE":true,
         "power":{"min": 0,"max": 150},
+        "powerCap":{"min": 0, "max": null},
         "energyConsumption":{"min": 2, "max": 1.25},
         "bindedPowerConsumption": true,
 
@@ -58,12 +60,12 @@
         "recoveryPerLap":{"min":4, "max":4},
 
         "deploySpeed":{"min":0, "max":50},
-        "deployCutSpeed":{"min": null,"max": null}
+        "deployCutSpeed":{"min": 0,"max": null}
     },
 
 
     "PU":{
-        "powerCap":{"min": null, "max": null},
+        "powerCap":{"min": 0, "max": null},
         "topSpeedCap":{"min": 0, "max": 105.5}
     },
 
@@ -72,8 +74,8 @@
         "RPM":{
             "idle":4000, 
             "min":9000, 
-            "shift": 12000,
-            "max": 13500, 
+            "shift": 11000,
+            "max": 12000, 
             "variation": 100
         },
 
