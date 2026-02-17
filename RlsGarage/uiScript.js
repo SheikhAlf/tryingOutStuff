@@ -22,7 +22,6 @@ let xBounds = {min: (viewPortWidth/100)*25, max: viewPortWidth};
 let yBounds = {min: 0, max: viewPortHeight};
 
 
-
 tabs.addEventListener("click", (event) => {
     tabs.querySelectorAll("li").forEach( (el) => {
         if(el.getAttribute("data-id") !== event.target.getAttribute("data-id")){
@@ -33,6 +32,11 @@ tabs.addEventListener("click", (event) => {
 
     tabs.querySelector("#"+tabID).setAttribute("class", "is-active" );
     activeTab = tabID;
+
+    switch (activeTab){
+        case "animations":
+            activateAnimations();
+    }
     //console.log(activeTab);
 });
 
@@ -88,18 +92,4 @@ menuToggle.element.addEventListener("click", (event) => {
         menuToggle.state = 0;
         xBounds.min = (viewPortWidth/100)*25;
     }
-});
-
-
-//Car Ui
-const previewImage = ui.querySelector("#previewImage");
-const previewImageInput = ui.querySelector("#selectImageInput");
-
-previewImageInput.addEventListener('change', async (event)=>{
-  const file = event.target.files[0]; 
-  const url = URL.createObjectURL(file);
-
-  previewImageFile = file;
-
-  previewImage.setAttribute("src", url);
 });

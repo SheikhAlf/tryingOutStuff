@@ -3,6 +3,18 @@ const engine = new BABYLON.Engine(canvas);
 const scene = new BABYLON.Scene(engine);
 const modelInput = document.querySelector('#selectCarModelIn');
 
+//meshes
+let meshLoaded = false;
+
+let carMesh;
+let steerableWheel = [];
+let steerables = [];
+let rearWheels = [];
+let steeringWheel = [];
+let radius;
+
+let wheelsSpeedRotation;
+
 scene.clearColor = new BABYLON.Color3(0.8, 0.8, 0.8);
 scene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("/assets/environment.env", scene);
 BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "Showroom.glb", scene);
@@ -57,16 +69,50 @@ window.addEventListener("keydown", (e)=>{
 //3D model loader
 modelInput.addEventListener('change', async (event) => {
   const file = event.target.files[0]; 
-  const url = URL.createObjectURL(file);
+  const url = URL.createObjectURL(file);   
+  
   
   BABYLON.SceneLoader.ImportMeshAsync("", url, "", scene, null, ".glb")
       .then((result) => {
           URL.revokeObjectURL(url);
+
+          meshLoaded = true;
+          console.log(scene.meshes);
+          scene.meshes.forEach(mesh => {
+            //console.log(mesh.name);
+
+            if(mesh.name.includes("WHEEL_STEERABLE")){
+              steerableWheel.push(mesh);
+
+            }else if(mesh.name.includes("STEERABLE")){
+              steerables.push(mesh);
+
+            }else if(mesh.name.includes("STEERING_WHEEL")){
+              steeringWheel.push(mesh);
+
+            }else if(mesh.name.includes("WHEEL_REAR")){
+              rearWheels.push(mesh);
+            }
+          });
       });
+
+
 });
 
 
 engine.runRenderLoop(() => {
   scene.render();
+  if(meshLoaded){
+    if(wheelsSpeedRotation){
+
+      steerableWheel.forEach(wheel => {
+        wheel.addRotation(0, wheelsSpeedRotation, 0);
+      });
+
+      rearWheels.forEach(wheel =>{
+        wheel.addRotation(0, wheelsSpeedRotation, 0);
+      });
+    }
+  }
   //console.log("rot: "+freeCamera.rotation+"  Pos:"+freeCamera._deferredPositionUpdate+ "Fov: "+freeCamera.fov);
 });
