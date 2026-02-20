@@ -2,7 +2,10 @@
 const ui = document.querySelector('#ui');
 const menuToggle = {element: document.querySelector('#menuToggle'), state: 0};
 const tabs = ui.querySelector('#tabs');
+const content = ui.querySelector('#content');
 let activeTab = "carUi";
+
+activateCarUi();
 
 //files
 let previewImageFile;
@@ -34,8 +37,18 @@ tabs.addEventListener("click", (event) => {
     activeTab = tabID;
 
     switch (activeTab){
+        case "carUi":
+            activateCarUi();
+            break;
+        case "carSetup":
+            activateCarSetup();
+            break;
         case "animations":
             activateAnimations();
+            break;
+        case "camera":
+            activateCameras();
+            break;
     }
     //console.log(activeTab);
 });
@@ -93,3 +106,68 @@ menuToggle.element.addEventListener("click", (event) => {
         xBounds.min = (viewPortWidth/100)*25;
     }
 });
+
+
+function activateCarUi(){
+//Car Ui
+
+fetch('/src/carUi.html')
+.then(response => response.text())
+.then(
+    (data) => {
+        content.innerHTML = data;
+    
+        //Car Ui inputs
+        const manufactureIn = document.querySelector("#manufactureIn");
+        const modelIn = document.querySelector("#modelIn");
+        const yearIn = document.querySelector("#yearIn");
+        const categoryIn = document.querySelector("#categoryIn");
+        const descriptionIn = document.querySelector("#descriptionIn");
+
+        //for the future
+        //manufactureIn.value = car.manufacture;
+        
+        
+        //inputs events
+        manufactureIn.addEventListener("change", (e) =>{
+            car.manufacture = manufactureIn.value;
+        });
+        
+        modelIn.addEventListener("change", (e) =>{
+            car.model = modelIn.value;
+        });
+        
+        yearIn.addEventListener("change", (e) =>{
+            car.year = yearIn.value;
+        });
+        
+        categoryIn.addEventListener("change", (e) =>{
+            car.category = categoryIn.value;
+        });
+        
+        manufactureIn.addEventListener("change", (e) =>{
+            car.manufacture = manufactureIn.value;
+        });
+        
+        descriptionIn.addEventListener("change", (e) =>{
+            car.description = descriptionIn.value;
+        });
+        
+        
+        
+        //image
+        const previewImage = ui.querySelector("#previewImage");
+        const previewImageInput = ui.querySelector("#selectImageInput");
+        
+        previewImageInput.addEventListener('change', async (event)=>{
+          const file = event.target.files[0]; 
+          const url = URL.createObjectURL(file);
+        
+          previewImageFile = file;
+        
+          previewImage.setAttribute("src", url);
+        });
+
+});
+
+}

@@ -114,6 +114,33 @@ li{
     display: flex;
 }
 
+#PositionsFieldsLines {
+  display: table !important;
+  width: 100% !important;
+  table-layout: fixed !important;
+  padding-left: 2%;
+}
+
+#PositionsFieldsLines .title,
+#PositionsFieldsLines .input {
+  display: table-cell !important;
+  vertical-align: middle !important;
+  width: auto !important;
+}
+
+#PositionsFieldsLines .title {
+  width: 25px !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#PositionsFieldsLines .input {
+  width: 90% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
 .title{
     min-width: 8vw;
     max-width: 8vw;
@@ -158,4 +185,17 @@ li{
   height: 25px;
   background: #04AA6D;
   cursor: pointer;
+}
+
+
+#baseCameras, #onboards{
+  display: flex;
+  flex-direction: row;
+  align-items: center;    
+  justify-content: center;
+  width: 33%;
+  position: relative;
+  max-width: 33%;
+  margin: auto;
+  margin-bottom: 5%;
 }

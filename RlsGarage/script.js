@@ -14,13 +14,14 @@ let steeringWheel = [];
 let radius;
 
 let wheelsSpeedRotation;
+let fovChange = 0.0005;
 
 scene.clearColor = new BABYLON.Color3(0.8, 0.8, 0.8);
 scene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("/assets/environment.env", scene);
 BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "Showroom.glb", scene);
 
 const defaultSpeed = 0.2;
-const freeCamera = new BABYLON.FreeCamera(
+let freeCamera = new BABYLON.FreeCamera(
   "camera",
   new BABYLON.Vector3(-5.6334244397982065, 4.714844991974612, 13.893594048703429),
   scene
@@ -49,7 +50,7 @@ window.addEventListener("keyup", (e) => {
 
 window.addEventListener("wheel", (e)=>{
   if(checkMouse()){
-    freeCamera.fov += e.deltaY * 0.0005;
+    freeCamera.fov += e.deltaY * fovChange;
     if(freeCamera.fov < 0.08){
       freeCamera.fov = 0.08;
     }
@@ -77,26 +78,24 @@ modelInput.addEventListener('change', async (event) => {
           URL.revokeObjectURL(url);
 
           meshLoaded = true;
-          console.log(scene.meshes);
+          carMesh = result.meshes[0];
           scene.meshes.forEach(mesh => {
             //console.log(mesh.name);
 
-            if(mesh.name.includes("WHEEL_STEERABLE")){
+            if(mesh.name.includes("WHEEL_STEERABLE")){  //adds rolling and steering animation
               steerableWheel.push(mesh);
 
-            }else if(mesh.name.includes("STEERABLE")){
+            }else if(mesh.name.includes("STEERABLE")){  //adds only steering animation
               steerables.push(mesh);
 
-            }else if(mesh.name.includes("STEERING_WHEEL")){
+            }else if(mesh.name.includes("STEERING_WHEEL")){   //adds steering animation with steering ratio multiplier
               steeringWheel.push(mesh);
 
-            }else if(mesh.name.includes("WHEEL_REAR")){
+            }else if(mesh.name.includes("WHEEL_REAR")){    //only rolling animation
               rearWheels.push(mesh);
             }
           });
       });
-
-
 });
 
 
