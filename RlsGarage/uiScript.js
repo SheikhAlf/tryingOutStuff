@@ -124,8 +124,11 @@ fetch('/src/carUi.html')
         const categoryIn = document.querySelector("#categoryIn");
         const descriptionIn = document.querySelector("#descriptionIn");
 
-        //for the future
-        //manufactureIn.value = car.manufacture;
+        if(car.manufacture && car.manufacture != "") manufactureIn.value = car.manufacture;
+        if(car.model && car.model != "") modelIn.value = car.model;
+        if(car.year && car.year > 0) yearIn.value = car.year;
+        if(car.category && car.category != "") categoryIn.value = car.category;
+        if(car.description && car.description != "") descriptionIn.value = car.description;
         
         
         //inputs events
@@ -158,6 +161,8 @@ fetch('/src/carUi.html')
         //image
         const previewImage = ui.querySelector("#previewImage");
         const previewImageInput = ui.querySelector("#selectImageInput");
+
+        if(previewImageFile) url = URL.createObjectURL(previewImageFile), previewImage.setAttribute("src", url);
         
         previewImageInput.addEventListener('change', async (event)=>{
           const file = event.target.files[0]; 

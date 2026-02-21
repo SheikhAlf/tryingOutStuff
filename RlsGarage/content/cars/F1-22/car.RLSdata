@@ -1,0 +1,203 @@
+{
+  "manufacture": "CAV",
+  "model": "EH-22",
+  "year": "2022",
+  "category": "F1",
+  "description": "F1 2022 Car",
+  "mass": {
+    "min": null,
+    "max": null
+  },
+  "fuel": {
+    "min": null,
+    "max": null
+  },
+  "area": {
+    "min": null,
+    "max": null
+  },
+  "Cl": {
+    "min": null,
+    "max": null
+  },
+  "Cd": {
+    "min": null,
+    "max": null
+  },
+  "bindedAero": false,
+  "Fan": {
+    "force": {
+      "min": null,
+      "max": null
+    },
+    "fuelConsumption": {
+      "min": null,
+      "max": null
+    },
+    "energyConsumption": {
+      "min": null,
+      "max": null
+    },
+    "bindedPowerConsumption": false,
+    "deploySpeed": {
+      "min": null,
+      "max": null
+    },
+    "deployCutSpeed": {
+      "min": null,
+      "max": null
+    }
+  },
+  "steeringRatio": 9,
+  "brakingTorque": {
+    "min": null,
+    "max": null
+  },
+  "AvrgWheelRadius": 0.56,
+  "ICE": {
+    "hasICE": false,
+    "power": {
+      "min": null,
+      "max": null
+    },
+    "powerCap": {
+      "min": null,
+      "max": null
+    },
+    "fuelConsumption": {
+      "min": null,
+      "max": null
+    },
+    "bindedPowerConsumption": false,
+    "powerCanBeZero": false,
+    "engineBraking": null,
+    "deploySpeed": {
+      "min": null,
+      "max": null
+    },
+    "deployCutSpeed": {
+      "min": null,
+      "max": null
+    }
+  },
+  "EE": {
+    "hasEE": false,
+    "power": {
+      "min": null,
+      "max": null
+    },
+    "powerCap": {
+      "min": null,
+      "max": null
+    },
+    "energyConsumption": {
+      "min": null,
+      "max": null
+    },
+    "bindedPowerConsumption": false,
+    "powerCanBeZero": false,
+    "engineBraking": {
+      "min": null,
+      "max": null
+    },
+    "energyRecovery": {
+      "min": null,
+      "max": null
+    },
+    "bindedBrakingRecovery": false,
+    "deployPerLap": {
+      "min": null,
+      "max": null
+    },
+    "recoveryPerLap": {
+      "min": null,
+      "max": null
+    },
+    "deploySpeed": {
+      "min": null,
+      "max": null
+    },
+    "deployCutSpeed": {
+      "min": null,
+      "max": null
+    }
+  },
+  "PU": {
+    "powerCap": {
+      "min": null,
+      "max": null
+    },
+    "topSpeedCap": {
+      "min": null,
+      "max": null
+    }
+  },
+  "gearBox": {
+    "RPM": {
+      "idle": null,
+      "min": null,
+      "shift": null,
+      "max": null,
+      "variation": null
+    },
+    "gears": [
+      0
+    ]
+  },
+  "cameras": {
+    "driverCam": {
+      "x": 0,
+      "y": 0.7108778736272356,
+      "z": -0.3863468954375512,
+      "pitch": 0.031110828916123597,
+      "roll": 0,
+      "yaw": 0,
+      "fov": 0.9111111140545505
+    },
+    "Tcam": {
+      "x": -0.08834808469995029,
+      "y": 1.0842856578469218,
+      "z": -0.7932812595394017,
+      "pitch": 0.38847104645518843,
+      "roll": 0,
+      "yaw": 0,
+      "fov": 1.0777777851363761
+    },
+    "bumperCam": {
+      "x": -0.28053815618077205,
+      "y": 0.37335195415426825,
+      "z": 1.3266311648006133,
+      "pitch": 0.26845602523005296,
+      "roll": 0,
+      "yaw": -0.049091527879606495,
+      "fov": 1.022222228109101
+    },
+    "onboard1": {
+      "x": -0.23037603301807122,
+      "y": 0.9800568543917247,
+      "z": -0.8953153061497243,
+      "pitch": 0.23781428270557795,
+      "roll": 0,
+      "yaw": -0.03121495017859252,
+      "fov": 0.9111111140545505
+    },
+    "onboard2": {
+      "x": 0.09534424536934709,
+      "y": 1.145277672880552,
+      "z": -0.9566276763096586,
+      "pitch": 0.21050220255164895,
+      "roll": 0,
+      "yaw": 3.1461840837106174,
+      "fov": 1.022222228109101
+    },
+    "onboard3": {
+      "x": 0,
+      "y": 0.7030247654189118,
+      "z": 0.2241792451733019,
+      "pitch": -0.04447326336039764,
+      "roll": 0,
+      "yaw": 3.1415,
+      "fov": 0.9111111140545505
+    }
+  }
+}

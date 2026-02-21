@@ -11,6 +11,7 @@ let steerableWheel = [];
 let steerables = [];
 let rearWheels = [];
 let steeringWheel = [];
+let helmet = [];
 let radius;
 
 let wheelsSpeedRotation;
@@ -93,10 +94,25 @@ modelInput.addEventListener('change', async (event) => {
 
             }else if(mesh.name.includes("WHEEL_REAR")){    //only rolling animation
               rearWheels.push(mesh);
+            }else if(mesh.name.includes("DRIVER_HELMET")){
+              helmet.push(mesh);
             }
           });
       });
 });
+
+
+function showHelmet(){
+  helmet.forEach(mesh => {
+      mesh.isVisible = true;
+  });
+}
+
+function hideHelmet(){
+  helmet.forEach(mesh => {
+      mesh.isVisible = false;
+  });
+}
 
 
 engine.runRenderLoop(() => {

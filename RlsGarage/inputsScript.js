@@ -85,7 +85,7 @@ let car={
 
     cameras:{
         driverCam:{
-            x:0, y:0, z:0, pitch:0, roll:0, yaw: 0, fov: 0.8
+            x:0, y:1, z:0, pitch:0, roll:0, yaw: 0, fov: 0.8
         },
 
         Tcam:{
@@ -140,6 +140,9 @@ fetch('/src/animations.html')
         
         const wheelsRadiusIn = document.querySelector("#wheelsRadiusIn");
         const steeringRatioIn = document.querySelector("#steeringRatioIn");
+
+        steeringRatioIn.value = car.steeringRatio;
+        wheelsRadiusIn.value = car.AvrgWheelRadius;
         
         steeringRatioIn.addEventListener("change", (e) =>{
             car.steeringRatio = Number(steeringRatioIn.value);
@@ -172,6 +175,11 @@ fetch('/src/animations.html')
         
                 steeringWheel.forEach(steer =>{
                     steer.rotation = new BABYLON.Vector3(0, 0, (e.target.value * Math.PI/180)*car.steeringRatio);
+                });
+
+                helmet.forEach(element =>{
+                    element.rotation = new BABYLON.Vector3(0, - e.target.value * Math.PI/180, 0);
+                    console.log(helmet);
                 });
             }
         });
@@ -337,6 +345,8 @@ function activateCameras(){
                 loadCurrentCameraDataInFC();
 
                 cameraLabel.innerHTML = e.target.textContent;
+
+                hideHelmet();
             });
 
             TcamElement.addEventListener("click", (e)=>{
@@ -345,6 +355,8 @@ function activateCameras(){
                 loadCurrentCameraDataInFC();
 
                 cameraLabel.innerHTML = e.target.textContent;
+
+                showHelmet();
             });
 
             bumperCamElement.addEventListener("click", (e)=>{
@@ -353,6 +365,8 @@ function activateCameras(){
                 loadCurrentCameraDataInFC();
 
                 cameraLabel.innerHTML = e.target.textContent;
+
+                showHelmet();
             });
 
             OnboardCam1Element.addEventListener("click", (e)=>{
@@ -361,6 +375,8 @@ function activateCameras(){
                 loadCurrentCameraDataInFC();
 
                 cameraLabel.innerHTML = e.target.textContent;
+
+                showHelmet();
             });
 
             OnboardCam2Element.addEventListener("click", (e)=>{
@@ -369,6 +385,8 @@ function activateCameras(){
                 loadCurrentCameraDataInFC();
 
                 cameraLabel.innerHTML = e.target.textContent;
+
+                showHelmet();
             });
 
             OnboardCam3Element.addEventListener("click", (e)=>{
@@ -377,6 +395,8 @@ function activateCameras(){
                 loadCurrentCameraDataInFC();
 
                 cameraLabel.innerHTML = e.target.textContent;
+
+                showHelmet();
             });
         
         
@@ -397,6 +417,36 @@ function activateCameras(){
 
 }
 
+//inport
+const selectCarDataFileBtn = document.querySelector("#selectCarDataFile");
+const selectCarDataFileIn = document.querySelector("#selectCarDataFileIn");
+
+selectCarDataFileIn.addEventListener("change", async (event) => {
+    const file = event.target.files[0];
+    if (!file) {
+      return;
+    }  
+    const text = await file.text();   
+    car = JSON.parse(text);
+
+    radius = car.AvrgWheelRadius;
+
+    switch (activeTab){
+        case "carUi":
+            activateCarUi();
+            break;
+        case "carSetup":
+            activateCarSetup();
+            break;
+        case "animations":
+            activateAnimations();
+            break;
+        case "camera":
+            activateCameras();
+            break;
+    }
+});
+
 
 //export
 function exportCarJSON(){
@@ -414,7 +464,7 @@ saveCar.addEventListener("click", () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "newCar.json";
+  a.download = "car.RLSdata";
   a.click();
   URL.revokeObjectURL(url);
 });
