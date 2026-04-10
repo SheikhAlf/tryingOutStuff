@@ -1,8 +1,12 @@
 async function startSimulation(path, scene, engine) {
+
+  calculateLap(path.nodes);
+
+
   if (path.nodes.length < 2) {
     return;
   } 
-  const result = await BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "FormulaPrototype.glb", scene);
+  const result = await BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "F1_2022_LowPoly.glb", scene);
   const car = result.meshes[0];
   
   car.rotationQuaternion = null;
@@ -15,8 +19,8 @@ async function startSimulation(path, scene, engine) {
     scene,
     car
   );
-  fc.radius = 60;
-  fc.heightOffset = 70;
+  fc.radius = 15;
+  fc.heightOffset = 7;
   fc.rotationOffset = 180;
   fc.cameraAcceleration = 0.05;
   fc.maxCameraSpeed = 10;
@@ -24,7 +28,7 @@ async function startSimulation(path, scene, engine) {
   
   const pathPoints = path.getPoints();
   let currentIndex = 0;
-  const speed = 1;
+  const speed = 0.5;
   
   engine.runRenderLoop(() => {
     scene.render();

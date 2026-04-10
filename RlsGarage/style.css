@@ -129,8 +129,7 @@ li{
 }
 
 #PositionsFieldsLines .title {
-  width: 25px !important;
-  white-space: nowrap !important;
+  width: 6% !important;
   margin: 0 !important;
   padding: 0 !important;
 }
@@ -144,6 +143,10 @@ li{
 .title{
     min-width: 8vw;
     max-width: 8vw;
+}
+
+.extended-title{
+  max-width: none;
 }
 
 .textarea{
@@ -198,4 +201,22 @@ li{
   max-width: 33%;
   margin: auto;
   margin-bottom: 5%;
+}
+
+.minMaxIn{
+  display: flex;
+}
+
+.minMaxIn input{
+  margin-left: 2%;
+}
+
+.minMaxTitle{
+  max-width: 100% !important;
+  margin-bottom: 3% !important;
+  margin-top: 6% !important;
+}
+
+.minMaxIn span{
+  margin-top: 1.5%;
 }

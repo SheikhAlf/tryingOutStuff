@@ -30,7 +30,7 @@ let freeCamera = new BABYLON.FreeCamera(
 freeCamera.attachControl(canvas, true);
 freeCamera.speed = defaultSpeed;
 freeCamera.rotation = new BABYLON.Vector3(0.297601403656662, 2.5303772749927615, 0);
-freeCamera.minZ = 0;
+freeCamera.minZ = 0.01;
 
 const light = new BABYLON.PointLight("light", new BABYLON.Vector3(10, 10, 0), scene);
 

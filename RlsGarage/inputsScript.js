@@ -5,76 +5,76 @@ let car={
     category:"",
     description: "",
 
-    mass: {min: null, max: null},
-    fuel: {min: null, max: null},
+    mass: {min: 0, max: 0},
+    fuel: {min: 0, max: 0},
 
-    area: {min: null, max: null},
-    Cl: {min: null, max: null},
-    Cd: {min: null, max: null},
+    area: {min: 0, max: 0},
+    Cl: {min: 0, max: 0},
+    Cd: {min: 0, max: 0},
     bindedAero: false,
 
     Fan:{
-        force:{min: null, max: null},
-        fuelConsumption:{min: null, max: null},
-        energyConsumption:{min: null ,max: null},
+        hasFan: false,
+        force:{min: 0, max: 0},
+        fuelConsumption:{min: 0, max: 0},
+        energyConsumption:{min: 0 ,max: 0},
         bindedPowerConsumption: false,
 
-        deploySpeed:{min: null, max: null},
-        deployCutSpeed:{min: null, max: null}
+        deploySpeed:{min: 0, max: 0},
+        deployCutSpeed:{min: 0, max: 0}
     },
 
     steeringRatio: 1,
 
-    brakingTorque:{min: null,max: null},
+    brakingTorque:{min: 0,max: 0},
     AvrgWheelRadius: 0.5,
 
     ICE:{
         hasICE: false,
-        power:{min: null,max: null},
-        powerCap:{min: null, max: null},
-        fuelConsumption:{min: null, max: null},
+        power:{min: 0,max: 0},
+        fuelConsumption:{min: 0, max: 0},
         bindedPowerConsumption: false,
         powerCanBeZero: false,
-        engineBraking: null,
+        engineBraking: 0,
 
-        deploySpeed:{min: null,max: null},
-        deployCutSpeed:{min: null,max: null}
+        deploySpeed:{min: 0,max: 0},
+        deployCutSpeed:{min: 0,max: 0}
     },
 
 
     EE:{
         hasEE: false,
-        power:{min: null, max: null},
-        powerCap:{min: null, max: null},
-        energyConsumption:{min: null, max: null},
+        power:{min: 0, max: 0},
+        energyConsumption:{min: 0, max: 0},
         bindedPowerConsumption: false,
 
         powerCanBeZero: false,
-        engineBraking: {min: null, max: null},
-        energyRecovery: {min: null, max: null},
+        engineBraking: {min: 0, max: 0},
+        energyRecovery: {min: 0, max: 0},
         bindedBrakingRecovery: false,
 
-        deployPerLap:{min: null, max: null},
-        recoveryPerLap:{min: null, max: null},
+        deployPerLap:{min: 0, max: 0},
+        recoveryPerLap:{min: 0, max: 0},
 
-        deploySpeed:{min: null, max: null},
-        deployCutSpeed:{min: null,max: null}
+        deploySpeed:{min: 0, max: 0},
+        deployCutSpeed:{min: 0,max: 0}
     },
 
 
     PU:{
-        powerCap:{min: null, max: null},
-        topSpeedCap:{min: null, max: null}
+        powerCap:{min: 0, max: 0},
+        splitAtCap:{min: [0,0], max: [0,0]},
+        topSpeedCap:{min: 0, max: 0}
     },
 
 
     gearBox:{
         RPM:{
-            idle: null, 
-            min: null, 
-            shift: null,
-            max: null, 
-            variation: null
+            idle: 0, 
+            min: 0, 
+            shift: 0,
+            max: 0, 
+            variation: 0
         },
 
         
@@ -119,6 +119,23 @@ fetch('/src/carSetup.html')
 .then(
     (data) => {
         content.innerHTML = data;
+
+        //Car Setup Inputs
+
+        //Mass
+        const massMin = document.querySelector("#massMinIn");
+        const massMax = document.querySelector("#massMaxIn");
+
+        massMin.value = car.mass.min;
+        massMax.value = car.mass.max;
+
+        massMin.addEventListener("change", (e) => {
+            car.mass.min = Number(massMin.value);
+        });
+
+        massMax.addEventListener("change", (e) => {
+            car.mass.max = Number(massMax.value);
+        });
 
 
         
@@ -229,6 +246,7 @@ function activateCameras(){
             const YawIn = document.querySelector("#YawIn");
             const RollIn = document.querySelector("#RollIn");
             const fovIn = document.querySelector("#fovIn");
+            const hideHelmetIn = {element: document.querySelector("#hideHelmet"), state:0};
 
 
             XIn.value = currentCamera.x;
@@ -282,6 +300,16 @@ function activateCameras(){
                 if(cameraLockLabel.state == 1) freeCamera.fov = currentCamera.fov;
             });
 
+            hideHelmetIn.element.addEventListener("change", (e)=>{
+                if(hideHelmetIn.state == 0){
+                    hideHelmet();
+                    hideHelmetIn.state = 1;
+                }else{
+                    showHelmet();
+                    hideHelmetIn.state = 0;                    
+                }
+            });
+
 
             function reloadPositionInputs(){
                 XIn.value = currentCamera.x;
@@ -312,13 +340,13 @@ function activateCameras(){
         
             cameraLockButton.addEventListener("click", (e) =>{
                 if(cameraLockLabel.state == 0){
-                    cameraLockLabel.element.textContent = "🔓 Unlock view";
+                    cameraLockLabel.element.textContent = "Unlock view ○";
                     cameraLockLabel.state = 1;
                     freeCamera.detachControl(canvas);
                     fovChange = 0;
                     loadCurrentCameraDataInFC();
                 }else if( cameraLockLabel.state == 1){
-                    cameraLockLabel.element.textContent = "🔒 Lock";
+                    cameraLockLabel.element.textContent = "Lock view ●";
                     cameraLockLabel.state = 0;
                     freeCamera.attachControl(canvas, true);
                     fovChange = 0.0005;
@@ -345,8 +373,6 @@ function activateCameras(){
                 loadCurrentCameraDataInFC();
 
                 cameraLabel.innerHTML = e.target.textContent;
-
-                hideHelmet();
             });
 
             TcamElement.addEventListener("click", (e)=>{
@@ -355,8 +381,6 @@ function activateCameras(){
                 loadCurrentCameraDataInFC();
 
                 cameraLabel.innerHTML = e.target.textContent;
-
-                showHelmet();
             });
 
             bumperCamElement.addEventListener("click", (e)=>{

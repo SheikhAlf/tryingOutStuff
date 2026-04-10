@@ -1,8 +1,10 @@
 class TrackNode {
-  constructor(x, y, z) {
+  constructor(x, y, z, r, d) {
     this.x = x;
     this.y = y;
     this.z = z;
+    this.r = r;
+    this.d = d;
   }
 
   toVector() {
@@ -38,7 +40,7 @@ class TrackNode {
   render() {
     const nodeMesh = BABYLON.MeshBuilder.CreateSphere(
       "node",
-      { diameter: 4 },
+      { diameter: 2 },
       scene
     );
     nodeMesh.position.copyFrom(new BABYLON.Vector3(this.x, this.y, this.z));
@@ -124,14 +126,31 @@ class Track {
     }
   }
 
+  calculateRadius(p1,p2,p3){
+
+    if(p2.mesh) p2 = p2.mesh.position;
+
+    let a = distance(p1,p2);
+    let b = distance(p2,p3);
+    let c = distance(p3,p1);
+
+    let s = (a+b+c)/2;
+
+    return (a*b*c)/4/Math.sqrt(s*(s-a)*(s-b)*(s-c));
+  }
+
   insert(index, points) {
     const insertNodes = points.map(p => new TrackNode(p.x, p.y, p.z));
     this.nodes.splice(index + 1, 0, ...insertNodes);
   }
 
   connect(p1, p2, p3) {
-    const numPoints = 33;
-    
+    let radius = this.calculateRadius(p1,p2,p3);
+    console.log(radius)
+
+    const numPoints = Math.floor(2*Math.PI*radius/6);
+    //console.log("C: "+2*Math.PI*radius, "P: "+numPoints);
+
     const arc = BABYLON.Curve3.ArcThru3Points(
       p1.toVector(),
       p2.toVector(),
@@ -142,8 +161,21 @@ class Track {
     );
     
     let points = arc.getPoints();
+    p1.r = radius;
+    p2.r = radius;
+    p3.r = radius;
 
+    let lastR;
+    let lastP;
     points.forEach(p => {
+      lastR = p.r;
+      p.r = radius;
+
+      //distance between points tests
+      if(lastP) lastP.d = distance(p,lastP);
+    
+      lastP = p;
+
       const ray = new BABYLON.Ray(
         new BABYLON.Vector3(p.x, 1000, p.z),
         BABYLON.Vector3.Down(),
@@ -154,6 +186,8 @@ class Track {
         p.y = hit.pickedPoint.y + 0.5; //0.5 so it doesnt clip
       }
     });
+
+    points[points.length-1].r = lastR;
 
     if (this.nodes.length > 2) {
       let beforeP2Index = 0;
@@ -178,7 +212,7 @@ class Track {
     
     const p3Index = this.nodes.indexOf(p3);
     const insertNodes = insertPoints.map(p => {
-      const node = new TrackNode(p.x, p.y, p.z);
+      const node = new TrackNode(p.x, p.y, p.z, p.r, p.d);
       node.projectOntoTrack();
       node.render
       return node;  
@@ -264,11 +298,22 @@ class Track {
     return this.nodes.map(node => new BABYLON.Vector3(node.x, node.y, node.z));
   }
 
+  calculateAndAssignDistanceBetweenPoints(){
+    for(let i = 0; i < this.nodes.length-1; i++){
+      this.nodes[i].d = distance(this.nodes[i], this.nodes[i+1]);
+    }
+  }
+
   exportJSON() {
+
+    this.calculateAndAssignDistanceBetweenPoints();
+
     const data = this.nodes.map(node => ({
       x: node.x,
       y: node.y,
-      z: node.z
+      z: node.z,
+      r: node.r,
+      d: node.d
     }));
     return JSON.stringify(data, null, 2);
   }
@@ -290,4 +335,8 @@ function createVerticalLine(node, height = 100) {
   line.color = new BABYLON.Color3(1, 1, 0); 
   
   return line;
+}
+
+function distance(p1,p2){
+  return Math.sqrt((p1.x - p2.x)**2+(p1.y - p2.y)**2+(p1.z - p2.z)**2);
 }

@@ -55,7 +55,7 @@ BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack.glb", scene)
       path.nodes = [];
 
       data.forEach(p => {
-        const node = new TrackNode(p.x, p.y, p.z);
+        const node = new TrackNode(p.x, p.y, p.z, p.r, p.d);
         path.nodes.push(node);
         const len = path.nodes.length;
         //path.meshesNodes.push(path.nodes[len-1].render()); 

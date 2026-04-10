@@ -172,7 +172,6 @@ fetch('/src/carUi.html')
         
           previewImage.setAttribute("src", url);
         });
-
 });
 
 }
