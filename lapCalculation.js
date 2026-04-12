@@ -1,12 +1,11 @@
 function calculateLap(data){
     const simpleCar = {
         mass: 800,
-        Cl: -3.5,
-        Cd: 0.9,
+        Cl: -3.3,
+        Cd: 0.93,
         A: 1.6,
         Power: 745.7,
-        brakingTorque: 6500,
-        tyreRadius: 0.56
+        brakingPower: 2000,
     }
 
     const simpleTyre = {
@@ -51,8 +50,8 @@ function calculateLap(data){
     }
 
     //Friction Limited Acceleration
-    function calculateAccelerationFL(m, Fr, Fd){
-        return (Fr - Fd)/m
+    function calculateAccelerationFL(m, Fr){
+        return Fr/m
     }
 
 
@@ -60,10 +59,6 @@ function calculateLap(data){
     function calculateAccelerationPL(m, P, Fd, V){
         let f = ((P * 1000) - Fd * V)/(m * V);
         return f < 0 ? (P/(m*V)) : f;
-    }
-
-    function calculateAccelerationBrake(m, Bt, tR, Fd){
-        return Bt/(m * tR) + Fd/m
     }
 
 
@@ -149,7 +144,7 @@ function calculateLap(data){
 
         let Fr = calculateFrictionForce(FrC, roll, N);
 
-        let aFL = calculateAccelerationFL(m, Fr, Fd);
+        let aFL = calculateAccelerationFL(m, Fr);
 
         let Fc = calculateCentripetalForce(m, V, simulatedLap.nodes[i].r);
 
@@ -198,8 +193,7 @@ function calculateLap(data){
 
         let m = car.mass;
         let FrC = tyre.FrC;
-        let Bt = car.brakingTorque;
-        let tR = car.tyreRadius;
+        let Bp = car.brakingPower;
         let Cd = car.Cd;
         let Cl = car.Cl;
         let A = car.A;
@@ -211,14 +205,13 @@ function calculateLap(data){
             let Fr = calculateFrictionForce(FrC, 0, N);
             let Fc = calculateCentripetalForce(m, V, list[i].r);
             let Fd = calculateDragForce(airDens, V, Cd, A);
-            let aFL = calculateAccelerationFL(m, Fr, Fd);
-            let aBL = calculateAccelerationBrake(m, Bt, tR, Fd);
-
-            let t = list[i].d/V
+            let aFL = N*FrC/m;
+            let aBL = calculateAccelerationPL(m, Bp, -Fd, V);
+            let t = list[i].d/V;
             let newSpeed = list[i+1].V + calculateAccelerationForR(m, aFL, aBL, Fr, Fc)*(t-t*timeError); //to account for the time error
             if (newSpeed < list[i].V) {
                 list[i].V = newSpeed;
-                list[i].t = t-t*0.2;
+                list[i].t = list[i].d/newSpeed;
             }
             i--;
             brakingSamples++;
