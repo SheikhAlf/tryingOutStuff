@@ -6,6 +6,7 @@ function calculateLap(data){
         A: 1.6,
         Power: 745.7,
         brakingPower: 2000,
+        steeringRatio: 12
     }
 
     const simpleTyre = {
@@ -61,16 +62,12 @@ function calculateLap(data){
         return f < 0 ? (P/(m*V)) : f;
     }
 
-
     //Maximum acceleration trought a turn of radius r
     function calculateAccelerationForR(m, aFL, aPL, Fr, Fc){
-        let aMin = aFL < aPL ? aFL : aPL;
-        let Fmin = m * aMin;
-        let Ftemp = 1 < Fmin/Fr ? 1 : Fmin/Fr;
-        let FrTot = Fr * (-1 > Ftemp ? -1 : Ftemp);
-        let Fres = Math.sqrt(FrTot**2 - Fc**2);
-        if(!Fres) Fres = 0;
-        return Fres / m;
+        let a = aFL < aPL ? aFL : aPL;
+        let FLat = Fc < Fr ? Fc : Fr;
+        let FLatNorm = FLat/Fr;
+        return Math.sin(Math.cos(FLatNorm))*a;
     }
 
     //terminal velocity
@@ -96,7 +93,74 @@ function calculateLap(data){
                 }
     }
 
+    //radius from Velocity
+    function radiusFromVelocity(m, Fl, V, FrC, roll){
+        return (2*(V**2)*m*(Math.cos(roll)-FrC*Math.sin(roll)))/
+                ((2*m*g+2*Fl)*(Math.sin(roll)+FrC*Math.cos(roll)));
+    }
+
+    //wheels angle from radius (doesn't work)
+    function wheelsAngleFromR(r, x1, y1, x2, y2){  //x and y in 2d space from top view
+        let x = x1 - x2;
+        let y = y1 - y2;
+        let dir = Math.atan2(y, x) > 0 ? 1 : -1;
+        return Math.atan(2/r)*dir;
+    }
+
+    //throttle/brake percentage
+    function calculatePedalInput(m, Fd, aPL, a){
+        if(aPL <= a) return 100;
+        let t = a/aPL*100+(Fd/m)/aPL*100;
+        if(t > 100) return 100;
+        return t;
+    }
+
     let terminalVel = calculateTerminalVel(simpleCar.Power, airDens, simpleCar.Cd, simpleCar.A);
+    
+    //deceleration function
+    function calculateDeceleration(car, tyre, list, endPoint) {
+        let i = endPoint - 1;
+        let brakingSamples = 0;
+        let brakingDistance = 0;
+
+        let m = car.mass;
+        let FrC = tyre.FrC;
+        let Bp = car.brakingPower;
+        let Cd = car.Cd;
+        let Cl = car.Cl;
+        let A = car.A;
+
+        while (list[i].V >= list[i+1].V) {
+            let V = list[i+1].V;
+            let Fl = calculateLiftForce(airDens, V, Cl, A);
+            let N = calculateNormalForce(m, g, Fl, FrC, 0);
+            let Fr = calculateFrictionForce(FrC, 0, N);
+            let Fc = calculateCentripetalForce(m, V, list[i].r);
+            let Fd = calculateDragForce(airDens, V, Cd, A);
+            let aFL = N*FrC/m;
+            let aBL = calculateAccelerationPL(m, Bp, -Fd, V);
+            let a = calculateAccelerationForR(m, aFL, aBL, Fr, Fc);
+
+            simulatedLap.nodes[i].throttle = 0;
+            simulatedLap.nodes[i].brake = calculatePedalInput(m, Fd, aBL, a);
+
+            let t = list[i].d/V;
+            let newSpeed = list[i+1].V + a*(t-t*timeError); //to account for the time error
+            if (newSpeed < list[i].V) {
+                list[i].V = newSpeed;
+                list[i].t = list[i].d/newSpeed;
+            }
+
+            simulatedLap.nodes[i].wheelsAngle = wheelsAngleFromR(radiusFromVelocity(m, Fl, newSpeed, FrC, 0), simulatedLap.nodes[i].x, simulatedLap.nodes[i].z, simulatedLap.nodes[i+1].x, simulatedLap.nodes[i+1].z);
+
+            i--;
+            brakingSamples++;
+            brakingDistance += list[i].d;
+        }
+
+        let BrakingData={maxSpeed: list[i], samples: brakingSamples, distance: brakingDistance};
+        return BrakingData;
+    }
 
     //line length test
     let totalDistance = 0;
@@ -116,13 +180,17 @@ function calculateLap(data){
     }
 
     //limits pass
+    const limitSpeed = [];
     for(let i=0; i < data.length; i++){
         simulatedLap.nodes[i].V = maxVelforR(simpleCar.mass, g, data[i].r, simpleTyre.FrC, simpleCar.Cl, simpleCar.A, airDens, 0, terminalVel);
+        limitSpeed.push(simulatedLap.nodes[i].V);
     }
 
     //actual lap simulation
     simulatedLap.nodes[0].V = simulatedLap.tyre.FrC * g / simulatedLap.nodes[0].d;
-    console.log(simulatedLap.nodes[0]);
+    simulatedLap.nodes[0].throttle = 100;
+    simulatedLap.nodes[0].brake = 0;
+    simulatedLap.nodes[0].wheelsAngle = 0;
     for(let i=1; i < simulatedLap.nodes.length-1; i++){
         let V = simulatedLap.nodes[i-1].V;
         let t = simulatedLap.nodes[i-1].d/V;
@@ -154,13 +222,14 @@ function calculateLap(data){
 
         let newVel = V+a*(t-t*timeError); //to account for the time error
 
+        simulatedLap.nodes[i].brake = 0;
+        simulatedLap.nodes[i].throttle = calculatePedalInput(m, Fd, aPL, a);
+
         if(!newVel){
             newVel = V;
         }
 
-        console.log("New Vel: "+newVel);
-
-        console.log(simulatedLap.nodes[i]);
+        simulatedLap.nodes[i].wheelsAngle = wheelsAngleFromR(radiusFromVelocity(m, Fl, V, FrC, 0), simulatedLap.nodes[i].x, simulatedLap.nodes[i].z, simulatedLap.nodes[i+1].x, simulatedLap.nodes[i+1].z);
 
         if (newVel <= simulatedLap.nodes[i].V){ 
             simulatedLap.nodes[i].V = newVel
@@ -178,49 +247,18 @@ function calculateLap(data){
     console.log("Time: "+simulatedLap.totalTime);
 
 
-    let csv = "Speed m/s;Speed Km/h\r\n";
-    for(let i=0; i < simulatedLap.nodes.length; i++){
-        csv += decStringWithComma(simulatedLap.nodes[i].V)+";"+decStringWithComma(simulatedLap.nodes[i].V*3.6)+"\r\n";
+    let csv = "Speed m/s;Speed Km/h;Limit Speed Km/h;Throttle;Brake;Wheels Angle\r\n";
+    for(let i=0; i < simulatedLap.nodes.length-1; i++){
+        csv += 
+        decStringWithComma(simulatedLap.nodes[i].V)+";"+
+        decStringWithComma(simulatedLap.nodes[i].V*3.6)+";"+
+        decStringWithComma(limitSpeed[i]*3.6)+";"+
+        decStringWithComma(simulatedLap.nodes[i].throttle)+";"+
+        decStringWithComma(simulatedLap.nodes[i].brake)+";"+
+        decStringWithComma(simulatedLap.nodes[i].wheelsAngle*57.2958*simulatedLap.car.steeringRatio)+"\r\n";
     }
 
     downloadFile(csv);
-
-
-    function calculateDeceleration(car, tyre, list, endPoint) {
-        let i = endPoint - 1;
-        let brakingSamples = 0;
-        let brakingDistance = 0;
-
-        let m = car.mass;
-        let FrC = tyre.FrC;
-        let Bp = car.brakingPower;
-        let Cd = car.Cd;
-        let Cl = car.Cl;
-        let A = car.A;
-
-        while (list[i].V >= list[i+1].V) {
-            let V = list[i+1].V;
-            let Fl = calculateLiftForce(airDens, V, Cl, A);
-            let N = calculateNormalForce(m, g, Fl, FrC, 0);
-            let Fr = calculateFrictionForce(FrC, 0, N);
-            let Fc = calculateCentripetalForce(m, V, list[i].r);
-            let Fd = calculateDragForce(airDens, V, Cd, A);
-            let aFL = N*FrC/m;
-            let aBL = calculateAccelerationPL(m, Bp, -Fd, V);
-            let t = list[i].d/V;
-            let newSpeed = list[i+1].V + calculateAccelerationForR(m, aFL, aBL, Fr, Fc)*(t-t*timeError); //to account for the time error
-            if (newSpeed < list[i].V) {
-                list[i].V = newSpeed;
-                list[i].t = list[i].d/newSpeed;
-            }
-            i--;
-            brakingSamples++;
-            brakingDistance += list[i].d;
-        }
-
-        let BrakingData={maxSpeed: list[i], samples: brakingSamples, distance: brakingDistance};
-        return BrakingData;
-    }
 
 
     function decStringWithComma(num){
