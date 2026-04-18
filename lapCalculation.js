@@ -1,12 +1,34 @@
 function calculateLap(data){
     const simpleCar = {
-        mass: 800,
-        Cl: -3.3,
-        Cd: 0.93,
-        A: 1.6,
-        Power: 745.7,
+        mass: 805,
+        Cl: -3.5,
+        Cd: 0.8,
+        A: 1.58,
+        Power: 750,
         brakingPower: 2000,
-        steeringRatio: 12
+        steeringRatio: 12,
+
+        gearBox:{
+            RPM:{
+                idle: 4000, 
+                min: 9500, 
+                shift: 12000,
+                max: 15000, 
+                variation: 100
+            },
+
+
+            gears:[
+                0,
+                100,
+                150,
+                180,
+                200,
+                235,
+                270,
+                300
+            ]
+        }
     }
 
     const simpleTyre = {
@@ -18,6 +40,14 @@ function calculateLap(data){
 
 
     //FORMULAS
+
+    //Src Mdn
+    function getRandomInt(min, max) {
+        const minCeiled = Math.ceil(min);
+        const maxFloored = Math.floor(max);
+        return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled); // The maximum is exclusive and the minimum is inclusive
+    }
+
 
     const timeError = 23/100;
 
@@ -87,10 +117,11 @@ function calculateLap(data){
         if(den == 0 || (2*r*m*g*(Math.sin(roll) + FrC * Math.cos(roll)))/den < 0){
             return AltSpeed;
         }else{
-            return Math.sqrt(
+            let res = Math.sqrt(
                             (2*r*m*g*(Math.sin(roll) + FrC * Math.cos(roll)))/den
                         );
-                }
+            return res < terminalVel ? res : terminalVel;
+            }
     }
 
     //radius from Velocity
@@ -99,12 +130,21 @@ function calculateLap(data){
                 ((2*m*g+2*Fl)*(Math.sin(roll)+FrC*Math.cos(roll)));
     }
 
-    //wheels angle from radius (doesn't work)
-    function wheelsAngleFromR(r, x1, y1, x2, y2){  //x and y in 2d space from top view
-        let x = x1 - x2;
-        let y = y1 - y2;
-        let dir = Math.atan2(y, x) > 0 ? 1 : -1;
-        return Math.atan(2/r)*dir;
+    //wheels angle from radius
+    function wheelsAngleFromR(r, rV, x0, y0, x1, y1, x2, y2){  //x and y in 2d space from top view
+        let xA = Math.abs(x1) - Math.abs(x0);
+        let yA = Math.abs(y1) - Math.abs(y0);
+        let aA = Math.atan(yA/xA);
+
+        let xB = Math.abs(x2) - Math.abs(x1);
+        let yB = Math.abs(y2) - Math.abs(y1);
+        let aB = Math.atan(yB/xB);
+
+        let dir = aB < aA ? 1 : -1;
+
+        let rFinal = rV < r ? rV : r;
+
+        return Math.atan(2/rFinal)*dir;
     }
 
     //throttle/brake percentage
@@ -141,8 +181,13 @@ function calculateLap(data){
             let aBL = calculateAccelerationPL(m, Bp, -Fd, V);
             let a = calculateAccelerationForR(m, aFL, aBL, Fr, Fc);
 
-            simulatedLap.nodes[i].throttle = 0;
-            simulatedLap.nodes[i].brake = calculatePedalInput(m, Fd, aBL, a);
+            if(simulatedLap.nodes[i].V == simulatedLap.nodes[i-1].V && simulatedLap.nodes[i-1].brake != 100){
+                simulatedLap.nodes[i].brake = 0;
+                simulatedLap.nodes[i].throttle = calculatePedalInput(m, Fd, aBL, a);
+            }else{
+                simulatedLap.nodes[i].throttle = 0;
+                simulatedLap.nodes[i].brake = calculatePedalInput(m, Fd, aBL, a);
+            }
 
             let t = list[i].d/V;
             let newSpeed = list[i+1].V + a*(t-t*timeError); //to account for the time error
@@ -151,7 +196,7 @@ function calculateLap(data){
                 list[i].t = list[i].d/newSpeed;
             }
 
-            simulatedLap.nodes[i].wheelsAngle = wheelsAngleFromR(radiusFromVelocity(m, Fl, newSpeed, FrC, 0), simulatedLap.nodes[i].x, simulatedLap.nodes[i].z, simulatedLap.nodes[i+1].x, simulatedLap.nodes[i+1].z);
+            simulatedLap.nodes[i].wheelsAngle = wheelsAngleFromR(simulatedLap.nodes[i].r, radiusFromVelocity(m, Fl, simulatedLap.nodes[i].V, FrC, 0), simulatedLap.nodes[i-1].x, simulatedLap.nodes[i-1].z, simulatedLap.nodes[i].x, simulatedLap.nodes[i].z, simulatedLap.nodes[i+1].x, simulatedLap.nodes[i+1].z);
 
             i--;
             brakingSamples++;
@@ -179,6 +224,8 @@ function calculateLap(data){
         lengthInMeters: totalDistance
     }
 
+    simulatedLap.car.gearBox.gears.push(terminalVel*3.6);
+
     //limits pass
     const limitSpeed = [];
     for(let i=0; i < data.length; i++){
@@ -188,7 +235,7 @@ function calculateLap(data){
 
     //actual lap simulation
     simulatedLap.nodes[0].V = simulatedLap.tyre.FrC * g / simulatedLap.nodes[0].d;
-    simulatedLap.nodes[0].throttle = 100;
+    simulatedLap.nodes[0].throttle = 10;
     simulatedLap.nodes[0].brake = 0;
     simulatedLap.nodes[0].wheelsAngle = 0;
     for(let i=1; i < simulatedLap.nodes.length-1; i++){
@@ -229,13 +276,56 @@ function calculateLap(data){
             newVel = V;
         }
 
-        simulatedLap.nodes[i].wheelsAngle = wheelsAngleFromR(radiusFromVelocity(m, Fl, V, FrC, 0), simulatedLap.nodes[i].x, simulatedLap.nodes[i].z, simulatedLap.nodes[i+1].x, simulatedLap.nodes[i+1].z);
+        simulatedLap.nodes[i].wheelsAngle = wheelsAngleFromR(simulatedLap.nodes[i].r, radiusFromVelocity(m, Fl, simulatedLap.nodes[i].V, FrC, 0), simulatedLap.nodes[i-1].x, simulatedLap.nodes[i-1].z, simulatedLap.nodes[i].x, simulatedLap.nodes[i].z, simulatedLap.nodes[i+1].x, simulatedLap.nodes[i+1].z);
 
         if (newVel <= simulatedLap.nodes[i].V){ 
             simulatedLap.nodes[i].V = newVel
         }else if(simulatedLap.nodes[i].V != terminalVel && newVel > simulatedLap.nodes[i].V){
             calculateDeceleration(simulatedLap.car, simulatedLap.tyre, simulatedLap.nodes, i);
         }
+    }
+
+    //gear and rpm calculation
+    for(let i=0; i < simulatedLap.nodes.length-1; i++){
+        let j = 0;
+        while(simulatedLap.car.gearBox.gears[j] < simulatedLap.nodes[i].V*3.6){
+            j++;
+        }
+        simulatedLap.nodes[i].gear = j;
+        let gear = j;
+
+        let sV = simulatedLap.car.gearBox.gears[j-1];
+        let eV = simulatedLap.car.gearBox.gears[j];
+
+        let minRPM = j <= 1 ? simulatedLap.car.gearBox.RPM.idle : simulatedLap.car.gearBox.RPM.min;
+        let maxRPM = j >= simulatedLap.car.gearBox.gears.length-1 ? simulatedLap.car.gearBox.RPM.max : simulatedLap.car.gearBox.RPM.shift;
+
+        let deltRPM = maxRPM - minRPM;
+
+        let deltV = eV - sV;
+
+        let Vp = 100*(simulatedLap.nodes[i].V*3.6 - sV)/deltV;
+
+        simulatedLap.nodes[i].RPM = (deltRPM)/100 * Vp + minRPM + getRandomInt(-simulatedLap.car.gearBox.RPM.variation, simulatedLap.car.gearBox.RPM.variation);
+    }
+
+
+    //telemetry cleaning and smoothing
+
+    function bezierCurveSmoothing3(p1, p2, p3, tValue){
+        return (1-tValue)**2*p1 + 2*(1-tValue)*tValue*p2 + tValue**2*p3;
+    }
+
+
+    let tValue = 0.11;  //value between 1- & 0+ (the lower it is the smoother it gets)
+    for(let i=2; i < simulatedLap.nodes.length-1; i++){
+
+        //steering inputs cleaning and smoothing
+        if(simulatedLap.nodes[i-1].wheelsAngle == -simulatedLap.nodes[i-2].wheelsAngle && simulatedLap.nodes[i-1].wheelsAngle == -simulatedLap.nodes[i].wheelsAngle){
+            simulatedLap.nodes[i-1].wheelsAngle = simulatedLap.nodes[i].wheelsAngle;
+        }
+
+        simulatedLap.nodes[i-1].wheelsAngle = bezierCurveSmoothing3(simulatedLap.nodes[i-2].wheelsAngle, simulatedLap.nodes[i-1].wheelsAngle, simulatedLap.nodes[i].wheelsAngle, tValue);
     }
 
     simulatedLap.totalTime = 0;
@@ -247,7 +337,7 @@ function calculateLap(data){
     console.log("Time: "+simulatedLap.totalTime);
 
 
-    let csv = "Speed m/s;Speed Km/h;Limit Speed Km/h;Throttle;Brake;Wheels Angle\r\n";
+    let csv = "Speed m/s;Speed Km/h;Limit Speed Km/h;Throttle;Brake;Gear;RPM;Wheels Angle\r\n";
     for(let i=0; i < simulatedLap.nodes.length-1; i++){
         csv += 
         decStringWithComma(simulatedLap.nodes[i].V)+";"+
@@ -255,6 +345,8 @@ function calculateLap(data){
         decStringWithComma(limitSpeed[i]*3.6)+";"+
         decStringWithComma(simulatedLap.nodes[i].throttle)+";"+
         decStringWithComma(simulatedLap.nodes[i].brake)+";"+
+        simulatedLap.nodes[i].gear+";"+
+        Math.round(simulatedLap.nodes[i].RPM)+";"+
         decStringWithComma(simulatedLap.nodes[i].wheelsAngle*57.2958*simulatedLap.car.steeringRatio)+"\r\n";
     }
 
