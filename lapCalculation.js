@@ -49,7 +49,7 @@ function calculateLap(data){
     }
 
 
-    const timeError = 23/100;
+    const timeError = 15/100;
 
     //Lift Force
     function calculateLiftForce(p, V, Cl, A){
@@ -194,10 +194,11 @@ function calculateLap(data){
             }
 
             let t = list[i].d/V;
-            let newSpeed = list[i+1].V + a*(t-t*timeError); //to account for the time error
+            t = t-t*timeError; //to account for the time error
+            let newSpeed = list[i+1].V + a*t;
             if (newSpeed < list[i].V) {
                 list[i].V = newSpeed;
-                list[i].t = list[i].d/newSpeed;
+                list[i].t = t;
             }
 
             simulatedLap.nodes[i].wheelsAngle = wheelsAngleFromR(simulatedLap.nodes[i].r, radiusFromVelocity(m, Fl, simulatedLap.nodes[i].V, FrC, 0), simulatedLap.nodes[i-1].x, simulatedLap.nodes[i-1].z, simulatedLap.nodes[i].x, simulatedLap.nodes[i].z, simulatedLap.nodes[i+1].x, simulatedLap.nodes[i+1].z);
@@ -273,7 +274,7 @@ function calculateLap(data){
 
         let a = calculateAccelerationForR(m, aFL, aPL, Fr, Fc);
 
-        let newVel = V+a*(t-t*timeError); //to account for the time error
+        let newVel = V+a*simulatedLap.nodes[i-1].t; //to account for the time error
 
         let FLat = Fc < Fr ? Fc : Fr;
 
