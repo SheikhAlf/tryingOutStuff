@@ -1,5 +1,5 @@
 function calculateLap(data){
-    const simpleCar = {
+    const SimCar = {
         mass: 805,
         Cl: -3.5,
         Cd: 0.8,
@@ -31,7 +31,7 @@ function calculateLap(data){
         }
     }
 
-    const simpleTyre = {
+    const SimTyre = {
         FrC: 1.5
     }
 
@@ -155,7 +155,7 @@ function calculateLap(data){
         return t;
     }
 
-    let terminalVel = calculateTerminalVel(simpleCar.Power, airDens, simpleCar.Cd, simpleCar.A);
+    let terminalVel = calculateTerminalVel(SimCar.Power, airDens, SimCar.Cd, SimCar.A);
     
     //deceleration function
     function calculateDeceleration(car, tyre, list, endPoint) {
@@ -180,6 +180,10 @@ function calculateLap(data){
             let aFL = N*FrC/m;
             let aBL = calculateAccelerationPL(m, Bp, -Fd, V);
             let a = calculateAccelerationForR(m, aFL, aBL, Fr, Fc);
+            let FLat = Fc < Fr ? Fc : Fr;
+
+            simulatedLap.nodes[i].longitudinalG =-a/g;
+            simulatedLap.nodes[i].lateralG =(FLat/m)/g;
 
             if(simulatedLap.nodes[i].V == simulatedLap.nodes[i-1].V && simulatedLap.nodes[i-1].brake != 100){
                 simulatedLap.nodes[i].brake = 0;
@@ -218,8 +222,8 @@ function calculateLap(data){
 
     let simulatedLap = { 
         nodes: data,
-        car: simpleCar,
-        tyre: simpleTyre,
+        car: SimCar,
+        tyre: SimTyre,
         airDensity: airDens,
         lengthInMeters: totalDistance
     }
@@ -229,12 +233,14 @@ function calculateLap(data){
     //limits pass
     const limitSpeed = [];
     for(let i=0; i < data.length; i++){
-        simulatedLap.nodes[i].V = maxVelforR(simpleCar.mass, g, data[i].r, simpleTyre.FrC, simpleCar.Cl, simpleCar.A, airDens, 0, terminalVel);
+        simulatedLap.nodes[i].V = maxVelforR(simulatedLap.car.mass, g, data[i].r, simulatedLap.tyre.FrC, simulatedLap.car.Cl, simulatedLap.car.A, airDens, 0, terminalVel);
         limitSpeed.push(simulatedLap.nodes[i].V);
     }
 
     //actual lap simulation
     simulatedLap.nodes[0].V = simulatedLap.tyre.FrC * g / simulatedLap.nodes[0].d;
+    simulatedLap.nodes[0].lateralG = 0;
+    simulatedLap.nodes[0].longitudinalG = simulatedLap.tyre.FrC;
     simulatedLap.nodes[0].throttle = 10;
     simulatedLap.nodes[0].brake = 0;
     simulatedLap.nodes[0].wheelsAngle = 0;
@@ -268,6 +274,11 @@ function calculateLap(data){
         let a = calculateAccelerationForR(m, aFL, aPL, Fr, Fc);
 
         let newVel = V+a*(t-t*timeError); //to account for the time error
+
+        let FLat = Fc < Fr ? Fc : Fr;
+
+        simulatedLap.nodes[i].longitudinalG =a/g;
+        simulatedLap.nodes[i].lateralG =(FLat/m)/g;
 
         simulatedLap.nodes[i].brake = 0;
         simulatedLap.nodes[i].throttle = calculatePedalInput(m, Fd, aPL, a);
@@ -328,6 +339,11 @@ function calculateLap(data){
         simulatedLap.nodes[i-1].wheelsAngle = bezierCurveSmoothing3(simulatedLap.nodes[i-2].wheelsAngle, simulatedLap.nodes[i-1].wheelsAngle, simulatedLap.nodes[i].wheelsAngle, tValue);
     }
 
+    //Lateral G force direction
+    for(let i=0; i < simulatedLap.nodes.length-1; i++){
+        simulatedLap.nodes[i].lateralG *= simulatedLap.nodes[i].wheelsAngle <= 0 ? 1 : -1;
+    }
+
     simulatedLap.totalTime = 0;
 
     for(let i=0; i < simulatedLap.nodes.length-2; i++){
@@ -337,17 +353,18 @@ function calculateLap(data){
     console.log("Time: "+simulatedLap.totalTime);
 
 
-    let csv = "Speed m/s;Speed Km/h;Limit Speed Km/h;Throttle;Brake;Gear;RPM;Wheels Angle\r\n";
+    let csv = "Speed Km/h;Limit Speed Km/h;Throttle;Brake;Gear;RPM;Wheels Angle;latG;longG\r\n";
     for(let i=0; i < simulatedLap.nodes.length-1; i++){
         csv += 
-        decStringWithComma(simulatedLap.nodes[i].V)+";"+
         decStringWithComma(simulatedLap.nodes[i].V*3.6)+";"+
         decStringWithComma(limitSpeed[i]*3.6)+";"+
         decStringWithComma(simulatedLap.nodes[i].throttle)+";"+
         decStringWithComma(simulatedLap.nodes[i].brake)+";"+
         simulatedLap.nodes[i].gear+";"+
         Math.round(simulatedLap.nodes[i].RPM)+";"+
-        decStringWithComma(simulatedLap.nodes[i].wheelsAngle*57.2958*simulatedLap.car.steeringRatio)+"\r\n";
+        decStringWithComma(simulatedLap.nodes[i].wheelsAngle*57.2958*simulatedLap.car.steeringRatio)+";"+
+        decStringWithComma(simulatedLap.nodes[i].lateralG)+";"+
+        decStringWithComma(simulatedLap.nodes[i].longitudinalG)+"\r\n";
     }
 
     downloadFile(csv);
