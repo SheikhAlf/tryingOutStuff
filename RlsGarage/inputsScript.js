@@ -4,68 +4,23 @@ let car={
     year: 0,
     category:"",
     description: "",
+    meshURL: null,
+    previewImageURL: null,
 
     mass: {min: 0, max: 0},
     fuel: {min: 0, max: 0},
 
-    area: {min: 0, max: 0},
+    A: {min: 0, max: 0},
     Cl: {min: 0, max: 0},
     Cd: {min: 0, max: 0},
     bindedAero: false,
 
-    Fan:{
-        hasFan: false,
-        force:{min: 0, max: 0},
-        fuelConsumption:{min: 0, max: 0},
-        energyConsumption:{min: 0 ,max: 0},
-        bindedPowerConsumption: false,
-
-        deploySpeed:{min: 0, max: 0},
-        deployCutSpeed:{min: 0, max: 0}
-    },
-
     steeringRatio: 1,
 
-    brakingTorque:{min: 0,max: 0},
+    brakingPower:{min: 0,max: 0},
     AvrgWheelRadius: 0.5,
 
-    ICE:{
-        hasICE: false,
-        power:{min: 0,max: 0},
-        fuelConsumption:{min: 0, max: 0},
-        bindedPowerConsumption: false,
-        powerCanBeZero: false,
-        engineBraking: 0,
-
-        deploySpeed:{min: 0,max: 0},
-        deployCutSpeed:{min: 0,max: 0}
-    },
-
-
-    EE:{
-        hasEE: false,
-        power:{min: 0, max: 0},
-        energyConsumption:{min: 0, max: 0},
-        bindedPowerConsumption: false,
-
-        powerCanBeZero: false,
-        engineBraking: {min: 0, max: 0},
-        energyRecovery: {min: 0, max: 0},
-        bindedBrakingRecovery: false,
-
-        deployPerLap:{min: 0, max: 0},
-        recoveryPerLap:{min: 0, max: 0},
-
-        deploySpeed:{min: 0, max: 0},
-        deployCutSpeed:{min: 0,max: 0}
-    },
-
-
-    PU:{
-        powerCap:{min: 0, max: 0},
-        splitAtCap:{min: [0,0], max: [0,0]},
-        topSpeedCap:{min: 0, max: 0}
-    },
+    Power: {min: 0, max: 0},
 
 
     gearBox:{
@@ -138,6 +93,115 @@ fetch('/src/carSetup.html')
         });
 
 
+        const fuelMin = document.querySelector("#fuelMinIn");
+        const fuelMax = document.querySelector("#fuelMaxIn");
+
+        fuelMin.value = car.fuel.min;
+        fuelMax.value = car.fuel.max;
+
+        fuelMin.addEventListener("change", (e) => {
+            car.fuel.min = Number(fuelMin.value);
+        });
+
+        massMax.addEventListener("change", (e) => {
+            car.fuel.max = Number(fuelMax.value);
+        });
+
+
+        //Aero
+
+        const ClMin = document.querySelector("#clMinIn");
+        const ClMax = document.querySelector("#clMaxIn");
+
+        ClMin.value = car.Cl.min;
+        ClMax.value = car.Cl.max;
+
+        ClMin.addEventListener("change", (e) => {
+            car.Cl.min = Number(ClMin.value);
+        });
+
+        ClMax.addEventListener("change", (e) => {
+            car.Cl.max = Number(ClMax.value);
+        });
+
+
+
+        const CdMin = document.querySelector("#cdMinIn");
+        const CdMax = document.querySelector("#cdMaxIn");
+
+        CdMin.value = car.Cd.min;
+        CdMax.value = car.Cd.max;
+
+        CdMin.addEventListener("change", (e) => {
+            car.Cd.min = Number(CdMin.value);
+        });
+
+        CdMax.addEventListener("change", (e) => {
+            car.Cd.max = Number(CdMax.value);
+        });
+
+
+
+        const areaMin = document.querySelector("#areaMinIn");
+        const areaMax = document.querySelector("#areaMaxIn");
+
+        areaMin.value = car.A.min;
+        areaMax.value = car.A.max;
+
+        areaMin.addEventListener("change", (e) => {
+            car.A.min = Number(areaMin.value);
+        });
+
+        areaMax.addEventListener("change", (e) => {
+            car.A.max = Number(areaMax.value);
+        });
+
+
+
+
+        const bindedAero = document.querySelector("#bindedAero");
+
+        if(car.bindedAero) bindedAero.setAttribute("checked","true");
+
+        bindedAero.addEventListener("change", (e) => {
+            car.bindedAero = !car.bindedAero;
+
+            if(car.bindedAero == false) bindedAero.setAttribute("checked","false");
+        });
+
+
+
+
+
+        const powerMin = document.querySelector("#powerMinIn");
+        const powerMax = document.querySelector("#powerMaxIn");
+
+        powerMin.value = car.Power.min;
+        powerMax.value = car.Power.max;
+
+        powerMin.addEventListener("change", (e) => {
+            car.Power.min = Number(powerMin.value);
+        });
+
+        powerMax.addEventListener("change", (e) => {
+            car.Power.max = Number(powerMin.value);
+        });
+
+
+
+        const brakingPowerMin = document.querySelector("#brakingPowerMinIn");
+        const brakingPowerMax = document.querySelector("#brakingPowerMaxIn");
+
+        brakingPowerMin.value = car.brakingPower.min;
+        brakingPowerMax.value = car.brakingPower.max;
+
+        brakingPowerMin.addEventListener("change", (e) => {
+            car.brakingPower.min = Number(brakingPowerMin.value);
+        });
+
+        brakingPowerMax.addEventListener("change", (e) => {
+            car.brakingPower.max = Number(brakingPowerMin.value);
+        });
         
     });
 }

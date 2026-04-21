@@ -59,245 +59,69 @@
 
 <input class="mt-5" type="checkbox" id="bindedAero"/><span class="ml-3">Binded Aero</span>
 
-<!--Fan-->
-<div class="title is-5 mt-6">Fan</div>
 
-<input type="checkbox" id="hasFan"/><span class="ml-3">Has Fan</span>
+<div class="title is-5 mt-6">PU</div>
 
-
-<div class="title is-6 minMaxTitle">Force (N):</div>
+<div class="title is-6 minMaxTitle">Power (Kw):</div>
 <div class="minMaxIn">
     <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='fanForceMinIn'/>
+    <input class='input mr-3' type='number' placeholder='min' id='powerMinIn'/>
 
     <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='fanForceMaxIn'/>
+    <input class='input' type='number' placeholder='max' id='powerMaxIn'/>
 </div>
 
 
-<div class="title is-6 minMaxTitle">Fuel Consumption (Km/l):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='fanFuelConsMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='fanFuelConsMaxIn'/>
-</div>
-
-
-<div class="title is-6 minMaxTitle">Energy Consumption (MJ/Km):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='fanEnergyConsMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='fanEnergyConsMaxIn'/>
-</div>
-
-<input class="mt-5" type="checkbox" id="FanBindedPowerCons"/><span class="ml-3">Binded Power/Consumption</span>
-
-
-<div class="title is-6 minMaxTitle">Deploy Speed (m/s):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='fanDeploySpeedMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='fanDeploySpeedMaxIn'/>
-</div>
-
-
-<div class="title is-6 minMaxTitle">Deploy Cut Speed (m/s):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='fanDeployCutSpeedMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='fanDeployCutSpeedMaxIn'/>
-</div>
-
-
-<!--Brakes-->
 <div class="title is-5 mt-6">Brakes</div>
 
-<div class="title is-6 minMaxTitle">Braking Torque (N/m):</div>
+<div class="title is-6 minMaxTitle">Braking Power (Kw):</div>
 <div class="minMaxIn">
     <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='brakingTorueMinIn'/>
+    <input class='input mr-3' type='number' placeholder='min' id='brakingPowerMinIn'/>
 
     <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='brakingTorueMaxIn'/>
+    <input class='input' type='number' placeholder='max' id='brakingPowerMaxIn'/>
 </div>
 
 
-<!--ICE-->
-<div class="title extended-title is-5 mt-6">Internal Combustion Engine</div>
+<!--GearBox-->
+<div class="title is-5 mt-6">Gear Box</div>
 
-<input type="checkbox" id="hasICE"/><span class="ml-3">Has ICE</span>
-
-<div class="title is-6 minMaxTitle">Power (Kw):</div>
+<div class="title is-6 minMaxTitle">Engine RPM</div>
 <div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='ICEpowerMinIn'/>
+    <span>Idle: </span>
+    <input class='input mr-3' type='number' placeholder='RPM' id='RPMidleIn'/>
 
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='ICEpowerMaxIn'/>
+    <span>Min: </span>
+    <input class='input mr-3' type='number' placeholder='RPM' id='RPMminIn'/>
+
 </div>
 
+<div class="minMaxIn mt-5">
+    
+    <span>Shift: </span>
+    <input class='input mr-3' type='number' placeholder='RPM' id='RPMshiftIn'/>
 
-<div class="title is-6 minMaxTitle">Fuel Consumption (Km/l):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='ICEconsMinIn'/>
+    <span>Max: </span>
+    <input class='input mr-3' type='number' placeholder='RPM' id='RPMmaxIn'/>
 
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='ICEconsMaxIn'/>
 </div>
 
-<input class="mt-5" type="checkbox" id="ICEbindedPowerCons"/><span class="ml-3">Binded Power/Consumption</span>
+<div class="title is-5 mt-6">Gears</div>
+
+<span>Number of Gears: </span>
+<input class='input mr-3 gearIn' type='number' placeholder='' id='nGearsIn'/>
+
+<hr>
+
+<div class="minMaxIn">
+    <div class="title is-6">Gears End Speed (Km/h):</div>
+    <span>(Last Gear is EXCLUDED)</span>
+</div>
+
+<span>1</span>
+<input class='input mr-3 gearIn' type='number' placeholder='' id='nGearsIn'/>
+
 <br>
-<input class="mt-5" type="checkbox" id="ICEpowerCanBeZero"/><span class="ml-3">Power Can Be 0</span>
 
-<div class="title is-6 minMaxTitle">Engine Braking Torque (N/m):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='ICEbrakingTorueMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='ICEbrakingTorueMaxIn'/>
-</div>
-
-
-<div class="title is-6 minMaxTitle">Deploy Speed (m/s):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='ICEdeploySpeedMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='ICEdeploySpeedMaxIn'/>
-</div>
-
-
-<div class="title is-6 minMaxTitle">Deploy Cut Speed (m/s):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='ICEdeployCutSpeedMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='ICEdeployCutSpeedMaxIn'/>
-</div>
-
-
-<!--EE-->
-<div class="title extended-title is-5 mt-6">Electric Engine</div>
-
-<input type="checkbox" id="hasEE"/><span class="ml-3">Has EE</span>
-
-<div class="title is-6 minMaxTitle">Power (Kw):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='EEpowerMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='EEpowerMaxIn'/>
-</div>
-
-
-<div class="title is-6 minMaxTitle">Energy Consumption (MJ/Km):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='EEconsMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='EEconsMaxIn'/>
-</div>
-
-<input class="mt-5" type="checkbox" id="EEbindedPowerCons"/><span class="ml-3">Binded Power/Consumption</span>
-<br>
-<input class="mt-5" type="checkbox" id="EEpowerCanBeZero"/><span class="ml-3">Power Can Be 0</span>
-
-
-<div class="title is-6 minMaxTitle">Engine Braking Torque (N/m):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='EEbrakingTorueMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='EEbrakingTorueMaxIn'/>
-</div>
-
-<div class="title is-6 minMaxTitle">Kinetic Energy Recovery (%/m):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='EEbrakingRecoveryMinIn' min="0" max="100"/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='EEbrakingRecoveryMaxIn' min="0" max="100"/>
-</div>
-
-<input class="mt-5" type="checkbox" id="EEbindedBrakingRecovery"/><span class="ml-3">Binded Braking/Recovery</span>
-
-
-<div class="title is-6 minMaxTitle">Deploy per Lap (MJ):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='EEdeployMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='EEdeployMaxIn'/>
-</div>
-
-
-<div class="title is-6 minMaxTitle">Recovery per Lap (MJ):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='EErecoveryMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='EErecoveryMaxIn'/>
-</div>
-
-<div class="title is-6 minMaxTitle">Deploy Speed (m/s):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='EEdeploySpeedMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='EEdeploySpeedMaxIn'/>
-</div>
-
-
-<div class="title is-6 minMaxTitle">Deploy Cut Speed (m/s):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='EEdeployCutSpeedMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='EEdeployCutSpeedMaxIn'/>
-</div>
-
-
-
-<!--PU-->
-<div class="title extended-title is-5 mt-6">Power Unit</div>
-
-<div class="title is-6 minMaxTitle">Power Cap (Kw):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='PUcapMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='PUcapMaxIn'/>
-</div>
-
-<div class="title is-6 minMaxTitle">Power Split at Cap (ICE% / EE%):</div>
-
-
-<div class="title is-6 minMaxTitle">Speed Cap (m/s):</div>
-<div class="minMaxIn">
-    <span>min: </span>
-    <input class='input mr-3' type='number' placeholder='min' id='speedMinIn'/>
-
-    <span class="ml-3">max: </span>
-    <input class='input' type='number' placeholder='max' id='speedMaxIn'/>
-</div>
+<span>2</span><input class='input mr-3 gearIn' type='number' placeholder='' id='nGearsIn'/>

@@ -166,9 +166,11 @@ fetch('/src/carUi.html')
         
         previewImageInput.addEventListener('change', async (event)=>{
           const file = event.target.files[0]; 
-          const url = URL.createObjectURL(file);
+          const url = car.previewImageURL ? car.previewImageURL : URL.createObjectURL(file);
         
           previewImageFile = file;
+
+          car.previewImageURL = url;
         
           previewImage.setAttribute("src", url);
         });

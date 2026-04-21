@@ -78,6 +78,8 @@ modelInput.addEventListener('change', async (event) => {
       .then((result) => {
           URL.revokeObjectURL(url);
 
+          car.meshURL = url;
+
           meshLoaded = true;
           carMesh = result.meshes[0];
           scene.meshes.forEach(mesh => {
