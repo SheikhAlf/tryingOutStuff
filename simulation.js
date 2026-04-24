@@ -2,7 +2,6 @@ async function startSimulation(path, scene, engine) {
 
   calculateLap(path.nodes);
 
-
   if (path.nodes.length < 2) {
     return;
   } 
@@ -27,18 +26,19 @@ async function startSimulation(path, scene, engine) {
   scene.activeCamera = fc;
   
   const pathPoints = path.getPoints();
+  const nodes = path.nodes;
   let currentIndex = 0;
-  const speed = 0.5;
   
   engine.runRenderLoop(() => {
     scene.render();
     
-    if (currentIndex < pathPoints.length - 1) {
+    if (currentIndex < pathPoints.length - 2) {
       const current = pathPoints[currentIndex];
       const next = pathPoints[currentIndex + 1];
-      const direction = next.subtract(current).normalize();
+      const speed = nodes[currentIndex].d / (nodes[currentIndex].t * engine.getFps());
+      const direction = next.subtract(car.position).scale(speed);
       
-      car.position.addInPlace(direction.scale(speed));
+      car.position.addInPlace(direction);
       
       const angle = Math.atan2(direction.x, direction.z) + Math.PI;
       car.rotation.y = angle;
