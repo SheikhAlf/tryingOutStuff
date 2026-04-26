@@ -49,7 +49,7 @@ function calculateLap(data){
     }
 
 
-    const timeError = 15/100;
+    const timeError = 10/100;
 
     //Lift Force
     function calculateLiftForce(p, V, Cl, A){
