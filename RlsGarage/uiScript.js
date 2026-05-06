@@ -162,18 +162,20 @@ fetch('/src/carUi.html')
         const previewImage = ui.querySelector("#previewImage");
         const previewImageInput = ui.querySelector("#selectImageInput");
 
-        if(previewImageFile) url = URL.createObjectURL(previewImageFile), previewImage.setAttribute("src", url);
+        if(car.previewImageURL) loadPreviewImage(car.previewImageURL);
         
-        previewImageInput.addEventListener('change', async (event)=>{
-          const file = event.target.files[0]; 
-          const url = car.previewImageURL ? car.previewImageURL : URL.createObjectURL(file);
-        
-          previewImageFile = file;
-
-          car.previewImageURL = url;
-        
-          previewImage.setAttribute("src", url);
+            previewImageInput.addEventListener('change', async (event)=>{
+            const file = event.target.files[0];             
+            toBase64(file).then(res =>{
+                car.previewImageURL = res;
+                loadPreviewImage(res);
+            });
         });
+
+
+        function loadPreviewImage(url){
+            previewImage.setAttribute("src", url);
+        }
 });
 
 }

@@ -8,7 +8,6 @@ let car={
     previewImageURL: null,
 
     mass: {min: 0, max: 0},
-    fuel: {min: 0, max: 0},
 
     A: {min: 0, max: 0},
     Cl: {min: 0, max: 0},
@@ -65,6 +64,8 @@ let car={
     }
 };
 
+let numberOfGears = 1;
+
 
 //you can find activateCarUi at the end of uiScript
 
@@ -90,21 +91,6 @@ fetch('/src/carSetup.html')
 
         massMax.addEventListener("change", (e) => {
             car.mass.max = Number(massMax.value);
-        });
-
-
-        const fuelMin = document.querySelector("#fuelMinIn");
-        const fuelMax = document.querySelector("#fuelMaxIn");
-
-        fuelMin.value = car.fuel.min;
-        fuelMax.value = car.fuel.max;
-
-        fuelMin.addEventListener("change", (e) => {
-            car.fuel.min = Number(fuelMin.value);
-        });
-
-        massMax.addEventListener("change", (e) => {
-            car.fuel.max = Number(fuelMax.value);
         });
 
 
@@ -172,7 +158,7 @@ fetch('/src/carSetup.html')
 
 
 
-
+        //Power
         const powerMin = document.querySelector("#powerMinIn");
         const powerMax = document.querySelector("#powerMaxIn");
 
@@ -188,7 +174,7 @@ fetch('/src/carSetup.html')
         });
 
 
-
+        //Braking Power
         const brakingPowerMin = document.querySelector("#brakingPowerMinIn");
         const brakingPowerMax = document.querySelector("#brakingPowerMaxIn");
 
@@ -202,8 +188,104 @@ fetch('/src/carSetup.html')
         brakingPowerMax.addEventListener("change", (e) => {
             car.brakingPower.max = Number(brakingPowerMin.value);
         });
-        
+
+
+
+        //RPM
+        const RPMidleIn = document.querySelector("#RPMidleIn");
+        const RPMminIn = document.querySelector("#RPMminIn");
+        const RPMshiftIn = document.querySelector("#RPMshiftIn");
+        const RPMmaxIn = document.querySelector("#RPMmaxIn");
+
+
+        RPMidleIn.value = car.gearBox.RPM.idle;
+        RPMminIn.value = car.gearBox.RPM.min;
+        RPMshiftIn.value = car.gearBox.RPM.shift;
+        RPMmaxIn.value = car.gearBox.RPM.max;
+
+        RPMidleIn.addEventListener("change", (e) =>{
+            car.gearBox.RPM.idle = Number(RPMidleIn.value);
+        });
+
+        RPMminIn.addEventListener("change", (e) =>{
+            car.gearBox.RPM.min = Number(RPMminIn.value);
+        });
+
+        RPMshiftIn.addEventListener("change", (e) =>{
+            car.gearBox.RPM.shift = Number(RPMshiftIn.value);
+        });
+
+        RPMmaxIn.addEventListener("change", (e) =>{
+            car.gearBox.RPM.max = Number(RPMmaxIn.value);
+        });
+
+
+        //Gears
+        const numberOfGearsElement = document.querySelector("#nGearsIn");
+
+        numberOfGearsElement.value = numberOfGears;
+
+        updateGears();
+
+        numberOfGearsElement.addEventListener("change", (e) =>{
+            if(numberOfGearsElement.value < 1){
+                numberOfGearsElement.value = 1;
+                numberOfGears = 1;
+            }else{
+                numberOfGears = Number(numberOfGearsElement.value);
+            }
+
+            if(car.gearBox.gears.length > numberOfGears) car.gearBox.gears = car.gearBox.gears.slice(0, numberOfGears+1);
+
+            updateGears();
+        });
     });
+
+    function updateGears(){
+
+        let maxGearValue = car.gearBox.gears[car.gearBox.gears.length-1];
+
+        //firstGear section
+        let gearsHTML = `
+            <span>1</span>
+            <input class='input mr-3 gearIn' type='number' placeholder='Km/h' id='1gear'/>
+            <progress class="progress is-link is-normal mt-2" id="1gearBar" value="${car.gearBox.gears[1]}" max="${maxGearValue}"></progress>
+            <br>
+            `;
+            
+        //all other gears section
+        for(let i = 1; i < numberOfGears; i++){
+            gearsHTML += `
+            <span>${i+1}</span>
+            <input class='input mr-3 gearIn' type='number' placeholder='Km/h' id='${i+1}gear'/>
+            <progress class="progress is-link is-normal mt-2" id="${i+1}gearBar" value="${car.gearBox.gears[i+1]}" max="${maxGearValue}"></progress>
+            <br>
+            `;
+        }
+
+        //updating the HTML
+        document.querySelector("#gears").innerHTML = gearsHTML;
+
+        //updating eventListeners for every gear input
+        for(let i = 0; i < numberOfGears; i++){
+            let gear = document.getElementById((i+1)+"gear");
+
+            gear.value = car.gearBox.gears[i+1];
+            gear.addEventListener("change", (e) => {
+                car.gearBox.gears[i+1] = Number(gear.value);
+                let gearBar= document.getElementById((i+1)+"gearBar");
+
+                maxGearValue = car.gearBox.gears[car.gearBox.gears.length-1];
+                
+                //updating gears progress bars to the new max value/changed input value
+                for(let j = 0; j < numberOfGears; j++){
+                    let gearBar= document.getElementById((j+1)+"gearBar");
+                    gearBar.max = maxGearValue;
+                    gearBar.value = document.getElementById((j+1)+"gear").value;
+                }
+            });
+        }
+    }
 }
 
 
@@ -260,7 +342,6 @@ fetch('/src/animations.html')
 
                 helmet.forEach(element =>{
                     element.rotation = new BABYLON.Vector3(0, - e.target.value * Math.PI/180, 0);
-                    console.log(helmet);
                 });
             }
         });
@@ -517,6 +598,8 @@ selectCarDataFileIn.addEventListener("change", async (event) => {
     const text = await file.text();   
     car = JSON.parse(text);
 
+    loadMesh(car.meshURL);
+
     radius = car.AvrgWheelRadius;
 
     switch (activeTab){
@@ -544,15 +627,15 @@ function exportCarJSON(){
 
 const saveCar = document.querySelector('#saveCar');
 saveCar.addEventListener("click", () => {
-  const json = exportCarJSON();
-  const blob = new Blob(
-    [json],
-    { type: "application/json" }
-  );
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "car.RLSdata";
-  a.click();
-  URL.revokeObjectURL(url);
+    const json = exportCarJSON();
+    const blob = new Blob(
+      [json],
+      { type: "application/json" }
+    );
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "car.RLSdata";
+    a.click();
+    URL.revokeObjectURL(url);
 });

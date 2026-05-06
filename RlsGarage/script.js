@@ -70,15 +70,19 @@ window.addEventListener("keydown", (e)=>{
 
 //3D model loader
 modelInput.addEventListener('change', async (event) => {
-  const file = event.target.files[0]; 
-  const url = URL.createObjectURL(file);   
-  
-  
-  BABYLON.SceneLoader.ImportMeshAsync("", url, "", scene, null, ".glb")
+  const file = event.target.files[0];
+  const url = URL.createObjectURL(file);
+
+  toBase64(file).then(res =>{
+    car.meshURL = res;
+    loadMesh(res);
+  });  
+});
+
+function loadMesh(url){
+    BABYLON.SceneLoader.ImportMeshAsync("", url, "", scene, null, ".glb")
       .then((result) => {
           URL.revokeObjectURL(url);
-
-          car.meshURL = url;
 
           meshLoaded = true;
           carMesh = result.meshes[0];
@@ -101,7 +105,7 @@ modelInput.addEventListener('change', async (event) => {
             }
           });
       });
-});
+}
 
 
 function showHelmet(){
@@ -115,6 +119,16 @@ function hideHelmet(){
       mesh.isVisible = false;
   });
 }
+
+//not my code og code src --> https://www.youtube.com/watch?v=0oE7SdXCmqE&t=76s   (why r indian people so smart?!!)
+//maximum file size seems to be around 3 MB
+//3D models textures dont work, only base colors (it's not a problem, it's a feature)
+const toBase64 = file => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.readAsDataURL(file);
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = error => reject(error);
+})
 
 
 engine.runRenderLoop(() => {
