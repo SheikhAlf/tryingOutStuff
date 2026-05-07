@@ -26,7 +26,8 @@ function calculateLap(data){
                 200,
                 235,
                 270,
-                300
+                300,
+                380
             ]
         }
     }
@@ -35,6 +36,7 @@ function calculateLap(data){
         FrC: 1.5
     }
 
+    let simulationStartVelocity = 222;
     let airDens = 1.225;
     let g = 9.81;
 
@@ -49,7 +51,7 @@ function calculateLap(data){
     }
 
 
-    const timeError = 10/100;
+    const timeError = 9/100;
 
     //Lift Force
     function calculateLiftForce(p, V, Cl, A){
@@ -229,7 +231,7 @@ function calculateLap(data){
         lengthInMeters: totalDistance
     }
 
-    simulatedLap.car.gearBox.gears.push(terminalVel*3.6);
+    if(simulatedLap.car.gearBox.gears[simulatedLap.car.gearBox.gears.length-1]/3.6 < terminalVel) terminalVel = simulatedLap.car.gearBox.gears[simulatedLap.car.gearBox.gears.length-1]/3.6;
 
     //limits pass
     const limitSpeed = [];
@@ -239,10 +241,10 @@ function calculateLap(data){
     }
 
     //actual lap simulation
-    simulatedLap.nodes[0].V = simulatedLap.tyre.FrC * g / simulatedLap.nodes[0].d;
+    simulatedLap.nodes[0].V = simulationStartVelocity ? simulationStartVelocity/3.6 : simulatedLap.tyre.FrC * g / simulatedLap.nodes[0].d;
     simulatedLap.nodes[0].lateralG = 0;
     simulatedLap.nodes[0].longitudinalG = simulatedLap.tyre.FrC;
-    simulatedLap.nodes[0].throttle = 10;
+    simulatedLap.nodes[0].throttle = 100;
     simulatedLap.nodes[0].brake = 0;
     simulatedLap.nodes[0].wheelsAngle = 0;
     for(let i=1; i < simulatedLap.nodes.length-1; i++){

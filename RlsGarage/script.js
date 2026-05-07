@@ -80,31 +80,32 @@ modelInput.addEventListener('change', async (event) => {
 });
 
 function loadMesh(url){
-    BABYLON.SceneLoader.ImportMeshAsync("", url, "", scene, null, ".glb")
-      .then((result) => {
-          URL.revokeObjectURL(url);
+  if(carMesh) carMesh.dispose(), steerableWheel = [], steerables = [], rearWheels = [], helmet = [];
+  BABYLON.SceneLoader.ImportMeshAsync("", url, "", scene, null, ".glb")
+    .then((result) => {
+      URL.revokeObjectURL(url);
 
-          meshLoaded = true;
-          carMesh = result.meshes[0];
-          scene.meshes.forEach(mesh => {
-            //console.log(mesh.name);
+      meshLoaded = true;
+      carMesh = result.meshes[0];
+      scene.meshes.forEach(mesh => {
+        //console.log(mesh.name);
 
-            if(mesh.name.includes("WHEEL_STEERABLE")){  //adds rolling and steering animation
-              steerableWheel.push(mesh);
+        if(mesh.name.includes("WHEEL_STEERABLE")){  //adds rolling and steering animation
+          steerableWheel.push(mesh);
 
-            }else if(mesh.name.includes("STEERABLE")){  //adds only steering animation
-              steerables.push(mesh);
+        }else if(mesh.name.includes("STEERABLE")){  //adds only steering animation
+          steerables.push(mesh);
 
-            }else if(mesh.name.includes("STEERING_WHEEL")){   //adds steering animation with steering ratio multiplier
-              steeringWheel.push(mesh);
+        }else if(mesh.name.includes("STEERING_WHEEL")){   //adds steering animation with steering ratio multiplier
+          steeringWheel.push(mesh);
 
-            }else if(mesh.name.includes("WHEEL_REAR")){    //only rolling animation
-              rearWheels.push(mesh);
-            }else if(mesh.name.includes("DRIVER_HELMET")){
-              helmet.push(mesh);
-            }
-          });
+        }else if(mesh.name.includes("WHEEL_REAR")){    //only rolling animation
+          rearWheels.push(mesh);
+        }else if(mesh.name.includes("DRIVER_HELMET")){
+          helmet.push(mesh);
+        }
       });
+    });
 }
 
 

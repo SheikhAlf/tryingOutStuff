@@ -146,6 +146,7 @@ class Track {
 
   connect(p1, p2, p3) {
     let radius = this.calculateRadius(p1,p2,p3);
+    if(!radius) radius = 10000;
     console.log(radius)
 
     const numPoints = Math.floor(2*Math.PI*radius/6);
