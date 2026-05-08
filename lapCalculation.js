@@ -6,6 +6,7 @@ function calculateLap(data){
         A: 1.58,
         Power: 750,
         brakingPower: 2000,
+        FrC: 1.5,
         steeringRatio: 12,
 
         gearBox:{
@@ -32,13 +33,12 @@ function calculateLap(data){
         }
     }
 
-    const SimTyre = {
-        FrC: 1.5
-    }
-
     let simulationStartVelocity = 222;
     let airDens = 1.225;
     let g = 9.81;
+    let trackGrip = 1;
+
+    car.FrC *= trackGrip;
 
 
     //FORMULAS
@@ -160,13 +160,13 @@ function calculateLap(data){
     let terminalVel = calculateTerminalVel(SimCar.Power, airDens, SimCar.Cd, SimCar.A);
     
     //deceleration function
-    function calculateDeceleration(car, tyre, list, endPoint) {
+    function calculateDeceleration(car, tyreFrC, list, endPoint) {
         let i = endPoint - 1;
         let brakingSamples = 0;
         let brakingDistance = 0;
 
         let m = car.mass;
-        let FrC = tyre.FrC;
+        let FrC = tyreFrC;
         let Bp = car.brakingPower;
         let Cd = car.Cd;
         let Cl = car.Cl;
@@ -226,7 +226,6 @@ function calculateLap(data){
     let simulatedLap = { 
         nodes: data,
         car: SimCar,
-        tyre: SimTyre,
         airDensity: airDens,
         lengthInMeters: totalDistance
     }
@@ -236,14 +235,14 @@ function calculateLap(data){
     //limits pass
     const limitSpeed = [];
     for(let i=0; i < data.length; i++){
-        simulatedLap.nodes[i].V = maxVelforR(simulatedLap.car.mass, g, data[i].r, simulatedLap.tyre.FrC, simulatedLap.car.Cl, simulatedLap.car.A, airDens, 0, terminalVel);
+        simulatedLap.nodes[i].V = maxVelforR(simulatedLap.car.mass, g, data[i].r, simulatedLap.car.FrC, simulatedLap.car.Cl, simulatedLap.car.A, airDens, 0, terminalVel);
         limitSpeed.push(simulatedLap.nodes[i].V);
     }
 
     //actual lap simulation
-    simulatedLap.nodes[0].V = simulationStartVelocity ? simulationStartVelocity/3.6 : simulatedLap.tyre.FrC * g / simulatedLap.nodes[0].d;
+    simulatedLap.nodes[0].V = simulationStartVelocity ? simulationStartVelocity/3.6 : simulatedLap.car.FrC * g / simulatedLap.nodes[0].d;
     simulatedLap.nodes[0].lateralG = 0;
-    simulatedLap.nodes[0].longitudinalG = simulatedLap.tyre.FrC;
+    simulatedLap.nodes[0].longitudinalG = simulatedLap.car.FrC;
     simulatedLap.nodes[0].throttle = 100;
     simulatedLap.nodes[0].brake = 0;
     simulatedLap.nodes[0].wheelsAngle = 0;
@@ -254,7 +253,7 @@ function calculateLap(data){
 
         let m = simulatedLap.car.mass;
         let P = simulatedLap.car.Power;
-        let FrC = simulatedLap.tyre.FrC;
+        let FrC = simulatedLap.car.FrC;
         let roll = 0;
         let Cd = simulatedLap.car.Cd;
         let Cl = simulatedLap.car.Cl;
@@ -295,7 +294,7 @@ function calculateLap(data){
         if (newVel <= simulatedLap.nodes[i].V){ 
             simulatedLap.nodes[i].V = newVel
         }else if(simulatedLap.nodes[i].V != terminalVel && newVel > simulatedLap.nodes[i].V){
-            calculateDeceleration(simulatedLap.car, simulatedLap.tyre, simulatedLap.nodes, i);
+            calculateDeceleration(simulatedLap.car, simulatedLap.car.FrC, simulatedLap.nodes, i);
         }
     }
 
@@ -403,4 +402,7 @@ function calculateLap(data){
       a.click();
       URL.revokeObjectURL(url);
     }
+
+
+    return simulatedLap;
 }

@@ -16,10 +16,12 @@ let car={
 
     steeringRatio: 1,
 
-    brakingPower:{min: 0,max: 0},
+    brakingPower:{min: 0, max: 0},
     AvrgWheelRadius: 0.5,
 
     Power: {min: 0, max: 0},
+
+    FrC: {min: 0, max: 0},
 
 
     gearBox:{
@@ -190,6 +192,21 @@ fetch('/src/carSetup.html')
         });
 
 
+
+        //Tyres Friction
+        const frictionMinIn = document.querySelector("#FrCMinIn");
+        const frictionMaxIn = document.querySelector("#FrCMaxIn");
+
+        frictionMinIn.value = car.FrC.min;
+        frictionMaxIn.value = car.FrC.max;
+
+        frictionMinIn.addEventListener("change", (e) =>{
+            car.FrC.min = Number(frictionMinIn.value);
+        });
+
+        frictionMaxIn.addEventListener("change", (e) =>{
+            car.FrC.max = Number(frictionMaxIn.value);
+        });
 
         //RPM
         const RPMidleIn = document.querySelector("#RPMidleIn");
