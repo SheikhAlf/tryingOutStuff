@@ -23,30 +23,42 @@ async function startSimulation(path, scene, engine) {
   fc.rotationOffset = 180;
   fc.cameraAcceleration = 0.05;
   fc.maxCameraSpeed = 10;
-  scene.activeCamera = fc;
+  //scene.activeCamera = fc;
   
-  const pathPoints = path.getPoints();
-  const nodes = path.nodes;
-  let currentIndex = 0;
-  
-  engine.runRenderLoop(() => {
-    scene.render();
-    
-    if (currentIndex < pathPoints.length - 2) {
-      const current = pathPoints[currentIndex];
-      const next = pathPoints[currentIndex + 1];
-      const speed = nodes[currentIndex].d / (nodes[currentIndex].t * engine.getFps());
-      const direction = next.subtract(car.position).scale(speed);
-      
-      car.position.addInPlace(direction);
-      
-      const angle = Math.atan2(direction.x, direction.z) + Math.PI;
-      car.rotation.y = angle;
-      
-      if (BABYLON.Vector3.Distance(car.position, next) < speed) {
-        currentIndex++;
-        car.position.copyFrom(next);
-      }
-    }
-  });
+  const points = path.getPoints();
+  const FRAME_RATE = 60;
+  const movement = new BABYLON.Animation(`movement`, "position", FRAME_RATE,
+    BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+    BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+  );
+  const rotation = new BABYLON.Animation(`rotation`, "rotation", FRAME_RATE,
+    BABYLON.Animation.ANIMATIONTYPE_VECTOR3,
+    BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+  );
+
+  const movementKeysFrames = [];
+  const rotationKeysFrames = [];
+  let t = 0; 
+
+  for (let i = 0; i < points.length - 2; i++) {
+    movementKeysFrames.push({
+      frame: FRAME_RATE * t,
+      value: points[i+1]
+    });
+    const direction = points[i+1].subtract(points[i]); 
+    const rotY = Math.atan2(direction.x, direction.z) + Math.PI;
+    const rotX = -Math.asin(direction.y);
+    const rotZ = 0;
+    rotationKeysFrames.push({
+      frame: FRAME_RATE * t,
+      value: new BABYLON.Vector3(rotX, rotY, rotZ)
+    });
+    t += path.nodes[i].t; 
+  }
+  movement.setKeys(movementKeysFrames);
+  rotation.setKeys(rotationKeysFrames);
+  car.animations.push(movement);
+  car.animations.push(rotation);
+
+  scene.beginAnimation(car, 0, t * FRAME_RATE);
 }
