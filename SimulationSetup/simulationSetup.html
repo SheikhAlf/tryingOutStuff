@@ -130,7 +130,7 @@
 <!--Tyres-->
 <div>
     <div class="setupIn">
-        <span>Coefficent of Friction: </span>
+        <span>Friction Coefficient: </span>
         <input class='input mr-3' type='number' placeholder='Friction' id='FrCInput'/>
     </div>
 
@@ -168,13 +168,13 @@
 <div>
     <div class="setupIn">
         <span>Track Grip %: </span>
-        <input class='input mr-3' type='number' placeholder='Friction' id='trackGripInput'/>
+        <input class='input mr-3' type='number' placeholder='Friction' id='trackGripInput' value="100"/>
     </div>
 
     <br>
 
     <div class='slidecontainer'>
-        <input type='range' min='50' max='100' value='100' class='slider' id='trackGripSlider'>
+        <input type='range' min='70' max='100' value='100' class='slider' id='trackGripSlider'>
     </div>
 </div>
 
@@ -185,16 +185,23 @@
 <!--Simulation Start Speed-->
 <div class="setupIn">
     <span>Simulation Start Speed (Km/h): </span>
-    <input class='input mr-3' type='number' placeholder='Km/h' id='startSpeedInput'/>
+    <input class='input mr-3' type='number' placeholder='Km/h' id='startSpeedInput' value="0"/>
 </div>
 
 <br><hr>
 
 <div class="title is-4 mt-3">Simulation</div>
 
-<div>Simulation Lap Time:</div>
-<div class="title is-3 mt-3" id="simulationTime">0:00.000</div>
+<div class="flex flex-spBtw">
+    <div>Simulation Lap Time:</div>
+    <div>Delta to Best Simulation:</div>
+</div>
 
+
+<div id="simulationTimeLine" class="flex flex-spBtw">
+    <div class="title is-3 mt-3" id="simulationTime">0:00.000</div>
+    <span class="title is-3 mt-3" id="deltaToBest">+0.000</span>
+</div>
 <br>
 
 <div class="flex">
@@ -206,5 +213,12 @@
       <span>Download CSV</span>
     </button>
 </div>
+
+<br><br><hr>
+
+
+<button class="uiBtn button is-warning mt-2" id="simBestRes" disabled>
+  Return to Best Simulation Result
+</button>
 
 <br><br><br>

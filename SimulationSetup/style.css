@@ -63,6 +63,10 @@ html, body, canvas {
   min-width: 100%;
 }
 
+.flex-spBtw{
+  justify-content: space-between;
+}
+
 .flex{
     display: flex;
 }

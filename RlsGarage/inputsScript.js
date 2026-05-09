@@ -172,7 +172,7 @@ fetch('/src/carSetup.html')
         });
 
         powerMax.addEventListener("change", (e) => {
-            car.Power.max = Number(powerMin.value);
+            car.Power.max = Number(powerMax.value);
         });
 
 
@@ -188,7 +188,7 @@ fetch('/src/carSetup.html')
         });
 
         brakingPowerMax.addEventListener("change", (e) => {
-            car.brakingPower.max = Number(brakingPowerMin.value);
+            car.brakingPower.max = Number(brakingPowerMax.value);
         });
 
 
@@ -213,12 +213,14 @@ fetch('/src/carSetup.html')
         const RPMminIn = document.querySelector("#RPMminIn");
         const RPMshiftIn = document.querySelector("#RPMshiftIn");
         const RPMmaxIn = document.querySelector("#RPMmaxIn");
+        const RPMvariationIn =document.querySelector("#RPMvariationIn");
 
 
         RPMidleIn.value = car.gearBox.RPM.idle;
         RPMminIn.value = car.gearBox.RPM.min;
         RPMshiftIn.value = car.gearBox.RPM.shift;
         RPMmaxIn.value = car.gearBox.RPM.max;
+        RPMvariationIn.value = car.gearBox.RPM.variation;
 
         RPMidleIn.addEventListener("change", (e) =>{
             car.gearBox.RPM.idle = Number(RPMidleIn.value);
@@ -236,9 +238,15 @@ fetch('/src/carSetup.html')
             car.gearBox.RPM.max = Number(RPMmaxIn.value);
         });
 
+        RPMvariationIn.addEventListener("change", (e) =>{
+            car.gearBox.RPM.variation = Number(RPMvariationIn.value);
+        });
+
 
         //Gears
         const numberOfGearsElement = document.querySelector("#nGearsIn");
+
+        numberOfGears = car.gearBox.gears.length-1;
 
         numberOfGearsElement.value = numberOfGears;
 
@@ -652,7 +660,7 @@ saveCar.addEventListener("click", () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "car.RLSdata";
+    a.download = car.manufacture+"-"+car.model+".RLSdata";
     a.click();
     URL.revokeObjectURL(url);
 });

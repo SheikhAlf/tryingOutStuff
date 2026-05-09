@@ -1,43 +1,6 @@
-function calculateLap(data){
-    const SimCar = {
-        mass: 805,
-        Cl: -3.5,
-        Cd: 0.8,
-        A: 1.58,
-        Power: 750,
-        brakingPower: 2000,
-        FrC: 1.5,
-        steeringRatio: 12,
+function calculateLap(SimCar, data, simulationStartVelocity, airDens, trackGrip){
 
-        gearBox:{
-            RPM:{
-                idle: 4000, 
-                min: 9500, 
-                shift: 12000,
-                max: 15000, 
-                variation: 100
-            },
-
-
-            gears:[
-                0,
-                100,
-                150,
-                180,
-                200,
-                235,
-                270,
-                300,
-                380
-            ]
-        }
-    }
-
-    let simulationStartVelocity = 222;
-    let airDens = 1.225;
-    let g = 9.81;
-    let trackGrip = 1;
-
+    const initialCarGrip = SimCar.FrC;
     SimCar.FrC *= trackGrip;
 
 
@@ -225,8 +188,10 @@ function calculateLap(data){
 
     let simulatedLap = { 
         nodes: data,
-        car: SimCar,
+        car: Object.assign({}, SimCar),
         airDensity: airDens,
+        trackGrip: trackGrip,
+        simulationStartVelocity: simulationStartVelocity,
         lengthInMeters: totalDistance
     }
 
@@ -369,7 +334,7 @@ function calculateLap(data){
         decStringWithComma(simulatedLap.nodes[i].longitudinalG)+"\r\n";
     }
 
-    downloadFile(csv);
+    //downloadFile(csv);
 
 
     function decStringWithComma(num){
@@ -404,5 +369,6 @@ function calculateLap(data){
     }
 
 
+    SimCar.FrC = initialCarGrip;
     return simulatedLap;
 }
