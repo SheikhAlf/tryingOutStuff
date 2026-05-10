@@ -21,8 +21,10 @@ const light = new BABYLON.PointLight("light", new BABYLON.Vector3(10, 10, 0), sc
 
 let trackMeshes = [];
 
-BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack.glb", scene)
+engine.displayLoadingUI();
+BABYLON.SceneLoader.ImportMeshAsync("", "./assets/", "CavTestTrack_compr.glb", scene)
   .then(result => {
+    engine.hideLoadingUI();
     trackMeshes = result.meshes.filter(m => m.isPickable);
 
     //export button

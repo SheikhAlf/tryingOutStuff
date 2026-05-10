@@ -23,7 +23,7 @@ async function startSimulation(path, scene, engine) {
   fc.rotationOffset = 180;
   fc.cameraAcceleration = 0.05;
   fc.maxCameraSpeed = 10;
-  //scene.activeCamera = fc;
+  scene.activeCamera = fc;
   
   const points = path.getPoints();
   const FRAME_RATE = 60;
