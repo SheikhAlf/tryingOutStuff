@@ -662,7 +662,7 @@ saveCar.addEventListener("click", () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = car.manufacture+"-"+car.model+".RLSdata";
+    a.download = car.manufacture+"_"+car.model+".RLSdata";
     a.click();
     URL.revokeObjectURL(url);
 });

@@ -164,6 +164,9 @@ menuToggle.element.addEventListener("click", (event) => {
 const content = document.querySelector("#content");
 let simBestResBtn;
 
+let downloadSimulationBtn;
+let downloadCsvBtn;
+
 
 //inputs
 
@@ -200,8 +203,12 @@ carInput.addEventListener("change",async (e) =>{
   simCar.FrC = car.FrC.min;
   simCar.gearBox = car.gearBox;
 
+  simCar.meshURL = car.meshURL;
+
   checkSimulationBtn();
   activateSimSetup();
+
+  allowDownloads(false);
 });
 
 
@@ -245,6 +252,7 @@ lineInput.addEventListener("change", async (e) =>{
 
   lineLoaded = true;
   checkSimulationBtn();
+  allowDownloads(false);
 
   if(lineMesh) lineMesh.dispose();
 
@@ -266,6 +274,8 @@ simulationBtn.addEventListener("click", (e) =>{
   updateSimulationTime(simulatedLap.totalTime);
 
   if(simBestResBtn.hasAttribute("disabled")) simBestResBtn.removeAttribute("disabled");
+
+  allowDownloads(true);
 });
 
 function checkSimulationBtn(){
@@ -656,6 +666,12 @@ function activateSimSetup(){
         return str+s+"."+mill;
       }
 
+
+
+      //Downloads
+      assignListenersToDownloadBtns();
+
+
       //Return to Best Simulation Setup
 
       function updateSimSetup(){
@@ -693,7 +709,7 @@ function activateSimSetup(){
         simulationStartVelocity = deepCopy(bestSimulation.simulationStartVelocity);
         updateSimSetup();
 
-        console.log(bestSimulation, lastBestSimulation,simulatedLap)
+        //console.log(bestSimulation, lastBestSimulation,simulatedLap)
 
         lastBestSimulation = deepCopy(bestSimulation);
         updateSimulationTime(bestSimulation.totalTime);

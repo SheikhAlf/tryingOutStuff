@@ -183,7 +183,7 @@ function calculateLap(SimCar, data, simulationStartVelocity, airDens, trackGrip)
         if(data[i].d) totalDistance += data[i].d;
     }
 
-    console.log("Line Length in m: "+totalDistance);
+    //console.log("Line Length in m: "+totalDistance);
 
 
     let simulatedLap = { 
@@ -202,6 +202,7 @@ function calculateLap(SimCar, data, simulationStartVelocity, airDens, trackGrip)
     for(let i=0; i < data.length; i++){
         simulatedLap.nodes[i].V = maxVelforR(simulatedLap.car.mass, g, data[i].r, simulatedLap.car.FrC, simulatedLap.car.Cl, simulatedLap.car.A, airDens, 0, terminalVel);
         limitSpeed.push(simulatedLap.nodes[i].V);
+        simulatedLap.nodes[i].limitSpeed = simulatedLap.nodes[i].V;
     }
 
     //actual lap simulation
@@ -317,57 +318,7 @@ function calculateLap(SimCar, data, simulationStartVelocity, airDens, trackGrip)
         simulatedLap.totalTime += simulatedLap.nodes[i].t;
     }
 
-    console.log("Time: "+simulatedLap.totalTime);
-
-
-    let csv = "Speed Km/h;Limit Speed Km/h;Throttle;Brake;Gear;RPM;Wheels Angle;latG;longG\r\n";
-    for(let i=0; i < simulatedLap.nodes.length-1; i++){
-        csv += 
-        decStringWithComma(simulatedLap.nodes[i].V*3.6)+";"+
-        decStringWithComma(limitSpeed[i]*3.6)+";"+
-        decStringWithComma(simulatedLap.nodes[i].throttle)+";"+
-        decStringWithComma(simulatedLap.nodes[i].brake)+";"+
-        simulatedLap.nodes[i].gear+";"+
-        Math.round(simulatedLap.nodes[i].RPM)+";"+
-        decStringWithComma(simulatedLap.nodes[i].wheelsAngle*57.2958*simulatedLap.car.steeringRatio)+";"+
-        decStringWithComma(simulatedLap.nodes[i].lateralG)+";"+
-        decStringWithComma(simulatedLap.nodes[i].longitudinalG)+"\r\n";
-    }
-
-    //downloadFile(csv);
-
-
-    function decStringWithComma(num){
-        num = String(num);
-        let str = "";
-        
-        for(let i = 0; i < num.length; i++){
-            if(num[i]){
-                if(num[i] === "."){
-                    str += ",";
-                }else{
-                    str += num[i];
-                }
-            }
-        }
-
-        return str;
-    }
-
-
-    function downloadFile(csv){
-    const blob = new Blob(
-        [csv],
-        { type: "text/csv;charset=utf-8;" }
-      );
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "simulation.csv";
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
+    //console.log("Time: "+simulatedLap.totalTime);
 
     SimCar.FrC = initialCarGrip;
     return simulatedLap;
