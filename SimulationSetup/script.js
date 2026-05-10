@@ -260,9 +260,9 @@ const simulationBtn = document.querySelector("#RunSimulation");
 const simulationBtnSpan = document.querySelector("#RunSimulationSpan");
 
 simulationBtn.addEventListener("click", (e) =>{
-  lastBestSimulation = Object.assign({}, bestSimulation);
+  lastBestSimulation = deepCopy(bestSimulation);
   simulatedLap = calculateLap(simCar, line, simulationStartVelocity, airDensity, trackGrip);
-  if(simulatedLap.totalTime <= bestSimulation.totalTime) bestSimulation = simulatedLap;
+  if(simulatedLap.totalTime <= bestSimulation.totalTime) bestSimulation = deepCopy(simulatedLap);
   updateSimulationTime(simulatedLap.totalTime);
 
   if(simBestResBtn.hasAttribute("disabled")) simBestResBtn.removeAttribute("disabled");
@@ -273,6 +273,11 @@ function checkSimulationBtn(){
     if(simulationBtn.hasAttribute("disabled")) simulationBtn.removeAttribute("disabled");
     simulationBtnSpan.title = "Click the button to see the result of the Simulation";
   }
+}
+
+
+function deepCopy(obj){
+  return JSON.parse(JSON.stringify(obj));
 }
 
 
@@ -682,17 +687,17 @@ function activateSimSetup(){
       simBestResBtn = document.querySelector("#simBestRes");
 
       simBestRes.addEventListener("click", (e) =>{
-        simCar = bestSimulation.car;
-        airDensity = bestSimulation.airDensity;
-        trackGrip = bestSimulation.trackGrip;
-        simulationStartVelocity = bestSimulation.simulationStartVelocity;
+        simCar = deepCopy(bestSimulation.car);
+        airDensity = deepCopy(bestSimulation.airDensity);
+        trackGrip = deepCopy(bestSimulation.trackGrip);
+        simulationStartVelocity = deepCopy(bestSimulation.simulationStartVelocity);
         updateSimSetup();
 
         console.log(bestSimulation, lastBestSimulation,simulatedLap)
 
-        lastBestSimulation = Object.assign({},bestSimulation);
+        lastBestSimulation = deepCopy(bestSimulation);
         updateSimulationTime(bestSimulation.totalTime);
-        simulatedLap = bestSimulation;
+        simulatedLap = deepCopy(bestSimulation);
 
         simBestResBtn.setAttribute("disabled",true);
       });

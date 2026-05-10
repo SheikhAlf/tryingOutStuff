@@ -248,6 +248,8 @@ fetch('/src/carSetup.html')
 
         numberOfGears = car.gearBox.gears.length-1;
 
+        numberOfGears = numberOfGears < 1 ? 1 : numberOfGears;
+
         numberOfGearsElement.value = numberOfGears;
 
         updateGears();

@@ -188,7 +188,7 @@ function calculateLap(SimCar, data, simulationStartVelocity, airDens, trackGrip)
 
     let simulatedLap = { 
         nodes: data,
-        car: Object.assign({}, SimCar),
+        car: JSON.parse(JSON.stringify(SimCar)),
         airDensity: airDens,
         trackGrip: trackGrip,
         simulationStartVelocity: simulationStartVelocity,
