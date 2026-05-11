@@ -188,7 +188,7 @@ class Track {
       }
     });
 
-    points[points.length-1].r = lastR;
+    points[points.length-1].r = lastR ? lastR : points[points.length-2].r;
 
     if (this.nodes.length > 2) {
       let beforeP2Index = 0;
